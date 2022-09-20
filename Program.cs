@@ -135,8 +135,21 @@ internal class Program
             }
             else
             {
-                // Append `);` if found on the last line.
-                var suffix = lastLine.EndsWith(");") ? ");" : string.Empty;
+                // Append `);`.
+                const string closing = ");";
+                string suffix;
+                if (lastLine.Trim() == closing)
+                {
+                    suffix = lineEnd + indent + closing;
+                }
+                else if (lastLine.EndsWith(closing))
+                {
+                    suffix = closing;
+                }
+                else
+                {
+                    suffix = string.Empty;
+                }
                 return new(start, end, Indent(indent, actual).ReplaceLineEndings(lineEnd) + suffix);
             }
         }
