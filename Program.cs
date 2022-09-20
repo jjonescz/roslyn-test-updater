@@ -86,6 +86,7 @@ internal class Program
         }
         position = firstLineMatch.Index + firstLineMatch.Length;
         var firstLine = contents[start..firstLineMatch.Index];
+        var lineEnd = firstLineMatch.Value;
         var indent = string.Join(null, firstLine.TakeWhile(char.IsWhiteSpace));
         var end = start;
         while (endOfLineOrFileRegex.Match(contents, position) is { } m && m.Success)
@@ -98,7 +99,7 @@ internal class Program
             }
             else
             {
-                return new(start, end, Indent(indent, actual));
+                return new(start, end, Indent(indent, actual).ReplaceLineEndings(lineEnd));
             }
         }
         throw new InvalidOperationException($"Unexpected EOF while finding block at {source}");
@@ -233,7 +234,7 @@ internal class Program
                     }
                     if (lastStackTraceLine != null)
                     {
-                        yield return (actual.ToString(), lastStackTraceLine.Value);
+                        yield return (actual.ToString().TrimEnd(), lastStackTraceLine.Value);
                     }
                     readNextLine = false;
                     state = State.Searching;
