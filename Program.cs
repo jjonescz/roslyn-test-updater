@@ -92,17 +92,21 @@ internal class Program
         var lineEnd = firstLineMatch.Value;
         var indent = string.Join(null, firstLine.TakeWhile(char.IsWhiteSpace));
         var end = start;
+        var lastLine = firstLine;
         while (endOfLineOrFileRegex.Match(contents, position) is { } m && m.Success)
         {
             var line = contents[position..m.Index];
             if (line.StartsWith(indent))
             {
                 end = m.Index;
+                lastLine = contents[position..end];
                 position = end + m.Length;
             }
             else
             {
-                return new(start, end, Indent(indent, actual).ReplaceLineEndings(lineEnd));
+                // Append `);` if found on the last line.
+                var suffix = lastLine.EndsWith(");") ? ");" : string.Empty;
+                return new(start, end, Indent(indent, actual).ReplaceLineEndings(lineEnd) + suffix);
             }
         }
         throw new InvalidOperationException($"Unexpected EOF while finding block at {source}");
