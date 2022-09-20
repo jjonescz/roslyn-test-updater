@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Text.RegularExpressions;
 
 namespace RoslynTestUpdater;
 
@@ -9,10 +10,23 @@ internal class Program
         Searching,
         FoundFailedTest,
         FoundActual,
-        AfterActual
+        AfterActual,
+        FoundStackTrace,
     }
 
-    static void Main(string[] args)
+    readonly record struct FileAndLocation(string Path, int Line, int Column);
+
+    static readonly Regex stackTraceEntryRegex = new(@"\((\d+),(\d+)\): at ", RegexOptions.Compiled);
+
+    static void Main()
+    {
+        foreach (var (actual, source) in ParseTestOutput())
+        {
+            Console.WriteLine(source);
+        }
+    }
+
+    static IEnumerable<(string Actual, FileAndLocation Source)> ParseTestOutput()
     {
         /*
 [xUnit.net 00:00:07.38]     Microsoft.CodeAnalysis.CSharp.UnitTests.RefFieldTests.AssignValueTo_InstanceMethod_RefReadonlyField [FAIL]
@@ -74,7 +88,18 @@ internal class Program
          */
         var state = State.Searching;
         var actual = new StringBuilder();
-        for (string? line; (line = Console.ReadLine()) != null;)
+        FileAndLocation? lastStackTraceLine = null;
+        var readNextLine = true;
+        string? GetNextLine(string? line)
+        {
+            if (readNextLine)
+            {
+                return Console.ReadLine();
+            }
+            readNextLine = true;
+            return line;
+        }
+        for (string? line = null; (line = GetNextLine(line)) != null;)
         {
             switch (state)
             {
@@ -107,9 +132,34 @@ internal class Program
                     actual.AppendLine(RemoveIndent(line));
                     continue;
 
+                // Find stack trace block.
                 case State.AfterActual:
-                    Console.WriteLine(actual);
-                    return;
+                    if (!line.EndsWith("Stack Trace:"))
+                    {
+                        continue;
+                    }
+                    state = State.FoundStackTrace;
+                    continue;
+
+                // Parse stack trace. When not possible, stack trace ended.
+                case State.FoundStackTrace:
+                    var match = stackTraceEntryRegex.Match(line);
+                    if (match.Success)
+                    {
+                        // Extract file name from the stack trace.
+                        lastStackTraceLine = new(
+                            Path: RemoveIndent(line[..match.Index]),
+                            Line: int.Parse(match.Groups[1].ValueSpan),
+                            Column: int.Parse(match.Groups[2].ValueSpan));
+                        continue;
+                    }
+                    if (lastStackTraceLine != null)
+                    {
+                        yield return (actual.ToString(), lastStackTraceLine.Value);
+                    }
+                    readNextLine = false;
+                    state = State.Searching;
+                    continue;
 
                 default:
                     throw new InvalidOperationException($"Unexpected state: {state}");
