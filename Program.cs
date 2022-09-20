@@ -20,10 +20,82 @@ internal class Program
 
     static void Main()
     {
+        var buffer = new byte[4096];
         foreach (var (actual, source) in ParseTestOutput())
         {
-            Console.WriteLine(source);
+            var (start, end) = FindExpectedBlock(source);
+
+            // Rewrite the block.
+            using var tmp = new MemoryStream();
+            {
+                using var writer = new StreamWriter(tmp, leaveOpen: true);
+                using var stream = File.OpenRead(source.Path);
+                while (stream.Position < end)
+                {
+                    var remaining = checked((int)(end - stream.Position));
+                    var toRead = Math.Min(buffer.Length, remaining);
+                    var read = stream.Read(buffer, 0, toRead);
+                    if (toRead != read)
+                    {
+                        throw new InvalidOperationException($"Read {read} instead of {toRead} at {stream.Position} in {source.Path}");
+                    }
+                    tmp.Write(buffer, 0, read);
+                }
+                writer.WriteLine(actual);
+                while (true)
+                {
+                    var read = stream.Read(buffer);
+                    tmp.Write(buffer, 0, read);
+                    if (read < buffer.Length)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            // Save new file contents.
+            tmp.Position = 0;
+            {
+                using var stream = File.Open(source.Path, FileMode.Open, FileAccess.Write);
+                tmp.CopyTo(stream);
+            }
         }
+    }
+
+    static (long Start, long End) FindExpectedBlock(FileAndLocation source)
+    {
+        using var reader = new StreamReader(source.Path);
+
+        // Find the line.
+        for (var i = 0; i < source.Line; i++)
+        {
+            if (reader.ReadLine() == null)
+            {
+                throw new InvalidOperationException($"Cannot find {source}; the file ends on line {i + 1}");
+            }
+        }
+
+        // Get indented block starting on the next line.
+        var start = reader.BaseStream.Position;
+        var firstLine = reader.ReadLine();
+        if (firstLine == null)
+        {
+            throw new InvalidOperationException($"Unexpected EOF just after {source}");
+        }
+        var indent = string.Join(null, firstLine.TakeWhile(char.IsWhiteSpace));
+        var end = start;
+        while (reader.ReadLine() is { } s)
+        {
+            if (s.StartsWith(indent))
+            {
+                end = reader.BaseStream.Position;
+            }
+            else
+            {
+                return (start, end);
+            }
+        }
+        throw new InvalidOperationException($"Unexpected EOF while finding block at {source}");
     }
 
     static IEnumerable<(string Actual, FileAndLocation Source)> ParseTestOutput()
