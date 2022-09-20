@@ -24,6 +24,9 @@ internal class Program
 
     static readonly Regex endOfLineOrFileRegex = new(@"\r\n|[\r\n]|$", RegexOptions.Compiled);
 
+    // UTF8 with BOM
+    static readonly Encoding encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: true);
+
     static void Main()
     {
         // Find blocks to rewrite.
@@ -52,7 +55,7 @@ internal class Program
                 delta += replacement.Length - end + start;
             }
 
-            File.WriteAllText(file, contents);
+            File.WriteAllText(file, contents, encoding);
         }
     }
 
