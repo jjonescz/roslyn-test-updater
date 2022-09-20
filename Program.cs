@@ -22,7 +22,7 @@ internal class Program
 
     static readonly Regex startRegex = new("^(?!$)", RegexOptions.Compiled | RegexOptions.Multiline);
 
-    static readonly Regex endOfLineOrFileRegex = new(@"\r\n|[\r\n]|$", RegexOptions.Compiled);
+    static readonly Regex endOfLineRegex = new(@"\r\n|[\r\n]", RegexOptions.Compiled);
 
     // UTF8 with BOM
     static readonly Encoding encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: true);
@@ -78,9 +78,9 @@ internal class Program
 
         // Find the line.
         var position = 0;
-        for (var i = 0; i < source.Line; i++)
+        for (var i = 0; i < source.Line - 1; i++)
         {
-            var match = endOfLineOrFileRegex.Match(contents, position);
+            var match = endOfLineRegex.Match(contents, position);
             if (!match.Success)
             {
                 throw new InvalidOperationException($"Cannot find {source}; the file ends on line {i + 1}");
@@ -88,20 +88,43 @@ internal class Program
             position = match.Index + match.Length;
         }
 
+        // Skip to line that actually contains the diagnostics call.
+        var backup = position;
+        while (true)
+        {
+            if (endOfLineRegex.Match(contents, position) is { } m && m.Success)
+            {
+                var line = contents[position..m.Index];
+                position = m.Index + m.Length;
+                if (line.Contains("Diagnostics("))
+                {
+                    break;
+                }
+            }
+            else
+            {
+                throw new InvalidOperationException($"Unexpected EOF while finding diagnostics call at {source}");
+            }
+        }
+
         // Get indented block starting on the next line.
-        var start = position;
-        var firstLineMatch = endOfLineOrFileRegex.Match(contents, position);
+        var firstLineMatch = endOfLineRegex.Match(contents, position);
         if (!firstLineMatch.Success)
         {
             throw new InvalidOperationException($"Unexpected EOF just after {source}");
         }
-        position = firstLineMatch.Index + firstLineMatch.Length;
-        var firstLine = contents[start..firstLineMatch.Index];
+        var firstLine = contents[position..firstLineMatch.Index];
         var lineEnd = firstLineMatch.Value;
         var indent = string.Join(null, firstLine.TakeWhile(char.IsWhiteSpace));
+        if (indent.Length == 0)
+        {
+            throw new InvalidOperationException($"Cannot find indent at {source}");
+        }
+        var start = position;
         var end = start;
         var lastLine = firstLine;
-        while (endOfLineOrFileRegex.Match(contents, position) is { } m && m.Success)
+        position = firstLineMatch.Index + firstLineMatch.Length;
+        while (endOfLineRegex.Match(contents, position) is { } m && m.Success)
         {
             var line = contents[position..m.Index];
             if (line.StartsWith(indent))
@@ -109,10 +132,6 @@ internal class Program
                 end = m.Index;
                 lastLine = contents[position..end];
                 position = end + m.Length;
-                if (m.Length == 0)
-                {
-                    break;
-                }
             }
             else
             {
