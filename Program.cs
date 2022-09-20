@@ -20,7 +20,9 @@ internal class Program
 
     static readonly Regex stackTraceEntryRegex = new(@"\((\d+),(\d+)\): at ", RegexOptions.Compiled);
 
-    static readonly Regex endOfLineRegex = new(@"\r\n|[\r\n]|$", RegexOptions.Compiled);
+    static readonly Regex startRegex = new("^(?!$)", RegexOptions.Compiled | RegexOptions.Multiline);
+
+    static readonly Regex endOfLineOrFileRegex = new(@"\r\n|[\r\n]|$", RegexOptions.Compiled);
 
     static void Main()
     {
@@ -29,13 +31,13 @@ internal class Program
         var blocks = new Dictionary<string, List<Replacement>>();
         foreach (var (actual, source) in ParseTestOutput())
         {
-            var (start, end) = FindExpectedBlock(cache, source);
+            var replacement = FindExpectedBlock(cache, actual, source);
             if (!blocks.TryGetValue(source.Path, out var list))
             {
                 list = new(1);
                 blocks.Add(source.Path, list);
             }
-            list.Add(new(start, end, actual));
+            list.Add(replacement);
         }
 
         // Construct new file contents.
@@ -54,7 +56,7 @@ internal class Program
         }
     }
 
-    static (int Start, int End) FindExpectedBlock(IDictionary<string, string> cache, FileAndLocation source)
+    static Replacement FindExpectedBlock(IDictionary<string, string> cache, string actual, FileAndLocation source)
     {
         // Get and cache file contents.
         if (!cache.TryGetValue(source.Path, out var contents))
@@ -67,7 +69,7 @@ internal class Program
         var position = 0;
         for (var i = 0; i < source.Line; i++)
         {
-            var match = endOfLineRegex.Match(contents, position);
+            var match = endOfLineOrFileRegex.Match(contents, position);
             if (!match.Success)
             {
                 throw new InvalidOperationException($"Cannot find {source}; the file ends on line {i + 1}");
@@ -77,7 +79,7 @@ internal class Program
 
         // Get indented block starting on the next line.
         var start = position;
-        var firstLineMatch = endOfLineRegex.Match(contents, position);
+        var firstLineMatch = endOfLineOrFileRegex.Match(contents, position);
         if (!firstLineMatch.Success)
         {
             throw new InvalidOperationException($"Unexpected EOF just after {source}");
@@ -86,7 +88,7 @@ internal class Program
         var firstLine = contents[start..firstLineMatch.Index];
         var indent = string.Join(null, firstLine.TakeWhile(char.IsWhiteSpace));
         var end = start;
-        while (endOfLineRegex.Match(contents, position) is { } m && m.Success)
+        while (endOfLineOrFileRegex.Match(contents, position) is { } m && m.Success)
         {
             var line = contents[position..m.Index];
             position = m.Index + m.Length;
@@ -96,7 +98,7 @@ internal class Program
             }
             else
             {
-                return (start, end);
+                return new(start, end, Indent(indent, actual));
             }
         }
         throw new InvalidOperationException($"Unexpected EOF while finding block at {source}");
@@ -252,5 +254,10 @@ internal class Program
         }
 
         return line.TrimStart();
+    }
+
+    static string Indent(string indent, string block)
+    {
+        return startRegex.Replace(block, indent);
     }
 }
