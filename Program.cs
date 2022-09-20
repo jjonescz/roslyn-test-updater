@@ -16,7 +16,7 @@ internal class Program
 
     readonly record struct FileAndLocation(string Path, int Line, int Column);
     
-    readonly record struct Replacement(long Start, long End, string Target);
+    readonly record struct Replacement(int Start, int End, string Target);
 
     static readonly Regex stackTraceEntryRegex = new(@"\((\d+),(\d+)\): at ", RegexOptions.Compiled);
 
@@ -38,10 +38,23 @@ internal class Program
             list.Add(new(start, end, actual));
         }
 
-        Console.WriteLine(string.Join("\n", blocks.Values.SelectMany(x => x)));
+        // Construct new file contents.
+        foreach (var (file, replacements) in blocks)
+        {
+            var contents = cache[file];
+
+            var delta = 0;
+            foreach (var (start, end, replacement) in replacements)
+            {
+                contents = contents[..(start + delta)] + replacement + contents[(end + delta + 1)..];
+                delta += replacement.Length - end + start;
+            }
+
+            File.WriteAllText(file, contents);
+        }
     }
 
-    static (long Start, long End) FindExpectedBlock(IDictionary<string, string> cache, FileAndLocation source)
+    static (int Start, int End) FindExpectedBlock(IDictionary<string, string> cache, FileAndLocation source)
     {
         // Get and cache file contents.
         if (!cache.TryGetValue(source.Path, out var contents))
