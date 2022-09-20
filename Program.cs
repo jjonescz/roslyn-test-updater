@@ -32,8 +32,10 @@ internal class Program
         // Find blocks to rewrite.
         var cache = new Dictionary<string, string>();
         var blocks = new Dictionary<string, List<Replacement>>();
+        var counter = 0;
         foreach (var (actual, source) in ParseTestOutput())
         {
+            Console.WriteLine($"Found test output: {++counter}");
             var replacement = FindExpectedBlock(cache, actual, source);
             if (!blocks.TryGetValue(source.Path, out var list))
             {
@@ -46,6 +48,7 @@ internal class Program
         // Construct new file contents.
         foreach (var (file, replacements) in blocks)
         {
+            Console.Write($"Replacing {file}... ");
             var contents = cache[file];
 
             replacements.Sort((x, y) => x.Start.CompareTo(y.Start));
@@ -58,6 +61,7 @@ internal class Program
             }
 
             File.WriteAllText(file, contents, encoding);
+            Console.WriteLine("Done.");
         }
     }
 
@@ -66,8 +70,10 @@ internal class Program
         // Get and cache file contents.
         if (!cache.TryGetValue(source.Path, out var contents))
         {
+            Console.Write($"Reading {source.Path}... ");
             contents = File.ReadAllText(source.Path);
             cache.Add(source.Path, contents);
+            Console.WriteLine("Done.");
         }
 
         // Find the line.
