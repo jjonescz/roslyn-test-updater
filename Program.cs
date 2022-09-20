@@ -15,80 +15,71 @@ internal class Program
     }
 
     readonly record struct FileAndLocation(string Path, int Line, int Column);
+    
+    readonly record struct Replacement(long Start, long End, string Target);
 
     static readonly Regex stackTraceEntryRegex = new(@"\((\d+),(\d+)\): at ", RegexOptions.Compiled);
 
+    static readonly Regex endOfLineRegex = new(@"\r\n|[\r\n]|$", RegexOptions.Compiled);
+
     static void Main()
     {
-        var buffer = new byte[4096];
+        // Find blocks to rewrite.
+        var cache = new Dictionary<string, string>();
+        var blocks = new Dictionary<string, List<Replacement>>();
         foreach (var (actual, source) in ParseTestOutput())
         {
-            var (start, end) = FindExpectedBlock(source);
-
-            // Rewrite the block.
-            using var tmp = new MemoryStream();
+            var (start, end) = FindExpectedBlock(cache, source);
+            if (!blocks.TryGetValue(source.Path, out var list))
             {
-                using var writer = new StreamWriter(tmp, leaveOpen: true);
-                using var stream = File.OpenRead(source.Path);
-                while (stream.Position < end)
-                {
-                    var remaining = checked((int)(end - stream.Position));
-                    var toRead = Math.Min(buffer.Length, remaining);
-                    var read = stream.Read(buffer, 0, toRead);
-                    if (toRead != read)
-                    {
-                        throw new InvalidOperationException($"Read {read} instead of {toRead} at {stream.Position} in {source.Path}");
-                    }
-                    tmp.Write(buffer, 0, read);
-                }
-                writer.WriteLine(actual);
-                while (true)
-                {
-                    var read = stream.Read(buffer);
-                    tmp.Write(buffer, 0, read);
-                    if (read < buffer.Length)
-                    {
-                        break;
-                    }
-                }
+                list = new(1);
+                blocks.Add(source.Path, list);
             }
-
-            // Save new file contents.
-            tmp.Position = 0;
-            {
-                using var stream = File.Open(source.Path, FileMode.Open, FileAccess.Write);
-                tmp.CopyTo(stream);
-            }
+            list.Add(new(start, end, actual));
         }
+
+        Console.WriteLine(string.Join("\n", blocks.Values.SelectMany(x => x)));
     }
 
-    static (long Start, long End) FindExpectedBlock(FileAndLocation source)
+    static (long Start, long End) FindExpectedBlock(IDictionary<string, string> cache, FileAndLocation source)
     {
-        using var reader = new StreamReader(source.Path);
+        // Get and cache file contents.
+        if (!cache.TryGetValue(source.Path, out var contents))
+        {
+            contents = File.ReadAllText(source.Path);
+            cache.Add(source.Path, contents);
+        }
 
         // Find the line.
+        var position = 0;
         for (var i = 0; i < source.Line; i++)
         {
-            if (reader.ReadLine() == null)
+            var match = endOfLineRegex.Match(contents, position);
+            if (!match.Success)
             {
                 throw new InvalidOperationException($"Cannot find {source}; the file ends on line {i + 1}");
             }
+            position = match.Index + match.Length;
         }
 
         // Get indented block starting on the next line.
-        var start = reader.BaseStream.Position;
-        var firstLine = reader.ReadLine();
-        if (firstLine == null)
+        var start = position;
+        var firstLineMatch = endOfLineRegex.Match(contents, position);
+        if (!firstLineMatch.Success)
         {
             throw new InvalidOperationException($"Unexpected EOF just after {source}");
         }
+        position = firstLineMatch.Index + firstLineMatch.Length;
+        var firstLine = contents[start..firstLineMatch.Index];
         var indent = string.Join(null, firstLine.TakeWhile(char.IsWhiteSpace));
         var end = start;
-        while (reader.ReadLine() is { } s)
+        while (endOfLineRegex.Match(contents, position) is { } m && m.Success)
         {
-            if (s.StartsWith(indent))
+            var line = contents[position..m.Index];
+            position = m.Index + m.Length;
+            if (line.StartsWith(indent))
             {
-                end = reader.BaseStream.Position;
+                end = position;
             }
             else
             {
