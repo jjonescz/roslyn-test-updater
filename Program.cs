@@ -48,11 +48,13 @@ internal class Program
         {
             var contents = cache[file];
 
+            replacements.Sort((x, y) => x.Start.CompareTo(y.Start));
+
             var delta = 0;
             foreach (var (start, end, replacement) in replacements)
             {
                 contents = contents[..(start + delta)] + replacement + contents[(end + delta + 1)..];
-                delta += replacement.Length - end + start;
+                delta += replacement.Length - (end + 1 - start);
             }
 
             File.WriteAllText(file, contents, encoding);
