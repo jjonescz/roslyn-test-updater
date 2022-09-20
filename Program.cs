@@ -91,10 +91,10 @@ internal class Program
         while (endOfLineOrFileRegex.Match(contents, position) is { } m && m.Success)
         {
             var line = contents[position..m.Index];
-            position = m.Index + m.Length;
             if (line.StartsWith(indent))
             {
-                end = position;
+                end = m.Index;
+                position = end + m.Length;
             }
             else
             {
