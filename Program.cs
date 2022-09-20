@@ -109,6 +109,10 @@ internal class Program
                 end = m.Index;
                 lastLine = contents[position..end];
                 position = end + m.Length;
+                if (m.Length == 0)
+                {
+                    break;
+                }
             }
             else
             {
