@@ -15,11 +15,13 @@ internal class Program
         FoundStackTrace,
     }
 
-    readonly record struct FileAndLocation(string Path, int Line, int Column);
+    readonly record struct FileAndLocation(string Path, int Line, int Column, string MethodName);
+
+    readonly record struct ParsingResult(string Actual, FileAndLocation Source);
     
     readonly record struct Replacement(int Start, int End, string Target);
 
-    static readonly Regex stackTraceEntryRegex = new(@"\((\d+),(\d+)\): at ", RegexOptions.Compiled);
+    static readonly Regex stackTraceEntryRegex = new(@"\((\d+),(\d+)\): at (\w+\.)*(\w+)", RegexOptions.Compiled);
 
     static readonly Regex startRegex = new("^(?!$)", RegexOptions.Compiled | RegexOptions.Multiline);
 
@@ -32,14 +34,14 @@ internal class Program
         var cache = new Dictionary<string, string>();
         var blocks = new Dictionary<string, List<Replacement>>();
         var counter = 0;
-        foreach (var (actual, source) in ParseTestOutput())
+        foreach (var result in ParseTestOutput())
         {
             Console.WriteLine($"Found test output: {++counter}");
-            var replacement = FindExpectedBlock(cache, actual, source);
-            if (!blocks.TryGetValue(source.Path, out var list))
+            var replacement = FindExpectedBlock(cache, result);
+            if (!blocks.TryGetValue(result.Source.Path, out var list))
             {
                 list = new(1);
-                blocks.Add(source.Path, list);
+                blocks.Add(result.Source.Path, list);
             }
             list.Add(replacement);
         }
@@ -64,8 +66,10 @@ internal class Program
         }
     }
 
-    static Replacement FindExpectedBlock(IDictionary<string, string> cache, string actual, FileAndLocation source)
+    static Replacement FindExpectedBlock(IDictionary<string, string> cache, ParsingResult parsingResult)
     {
+        var (actual, source) = parsingResult;
+
         // Get and cache file contents.
         if (!cache.TryGetValue(source.Path, out var contents))
         {
@@ -91,7 +95,8 @@ internal class Program
         {
             if (reader.ReadLine())
             {
-                if (reader.LastLine.Contains("Diagnostics(", StringComparison.Ordinal))
+                if (reader.LastLine.Contains($"Diagnostics(", StringComparison.Ordinal)
+                    || reader.LastLine.Contains($"Verify(", StringComparison.Ordinal))
                 {
                     break;
                 }
@@ -146,7 +151,7 @@ internal class Program
         throw new InvalidOperationException($"Unexpected EOF while finding block at {source}");
     }
 
-    static IEnumerable<(string Actual, FileAndLocation Source)> ParseTestOutput()
+    static IEnumerable<ParsingResult> ParseTestOutput()
     {
         /*
 [xUnit.net 00:00:07.38]     Microsoft.CodeAnalysis.CSharp.UnitTests.RefFieldTests.AssignValueTo_InstanceMethod_RefReadonlyField [FAIL]
@@ -266,16 +271,17 @@ internal class Program
                     var match = stackTraceEntryRegex.Match(line);
                     if (match.Success)
                     {
-                        // Extract file name from the stack trace.
+                        // Parse the stack trace line.
                         lastStackTraceLine = new(
                             Path: RemoveIndent(line[..match.Index]),
                             Line: int.Parse(match.Groups[1].ValueSpan),
-                            Column: int.Parse(match.Groups[2].ValueSpan));
+                            Column: int.Parse(match.Groups[2].ValueSpan),
+                            MethodName: match.Groups[4].Value);
                         continue;
                     }
                     if (lastStackTraceLine != null)
                     {
-                        yield return (actual.ToString().TrimEnd(), lastStackTraceLine.Value);
+                        yield return new(actual.ToString().TrimEnd(), lastStackTraceLine.Value);
                     }
                     readNextLine = false;
                     state = State.Searching;
