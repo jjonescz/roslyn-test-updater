@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 using System.Text.RegularExpressions;
 
 namespace RoslynTestUpdater;
@@ -18,7 +17,7 @@ internal class Program
     readonly record struct FileAndLocation(string Path, int Line, int Column, string Namespace, string ClassName, string MethodName);
 
     readonly record struct ParsingResult(string Actual, FileAndLocation Source);
-    
+
     readonly record struct Replacement(int Start, int End, string Target);
 
     static readonly Regex stackTraceEntryRegex = new(@"\((\d+),(\d+)\): at ((\w+\.)*)(\w+)\.(\w+)", RegexOptions.Compiled);
