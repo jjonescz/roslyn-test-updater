@@ -29,6 +29,12 @@ internal class Program
     // UTF8 with BOM
     static readonly Encoding encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: true);
 
+    static readonly string[] clues = new[]
+    {
+        "Diagnostics(",
+        "Verify(",
+    };
+
     static void Main()
     {
         // Find blocks to rewrite.
@@ -117,10 +123,12 @@ internal class Program
         {
             if (reader.ReadLine())
             {
-                if (reader.LastLine.Contains($"Diagnostics(", StringComparison.Ordinal)
-                    || reader.LastLine.Contains($"Verify(", StringComparison.Ordinal))
+                foreach (var clue in clues)
                 {
-                    break;
+                    if (reader.LastLine.Contains(clue, StringComparison.Ordinal))
+                    {
+                        goto afterLoop;
+                    }
                 }
             }
             else
@@ -128,6 +136,7 @@ internal class Program
                 throw new InvalidOperationException($"Unexpected EOF while finding diagnostics call at {source}");
             }
         }
+        afterLoop:
 
         // Get indented block starting on the next line.
         var start = reader.Position;
