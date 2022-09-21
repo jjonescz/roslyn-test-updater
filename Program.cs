@@ -25,6 +25,8 @@ internal class Program
 
     static readonly Regex startRegex = new("^(?!$)", RegexOptions.Compiled | RegexOptions.Multiline);
 
+    static readonly Regex closingRegex = new(@"\)*;$", RegexOptions.Compiled);
+
     // UTF8 with BOM
     static readonly Encoding encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: true);
 
@@ -145,16 +147,19 @@ internal class Program
             }
             else
             {
-                // Append `);`.
-                const string closing = ");";
+                // Append `);` (repeat the parenthesis as it was on the input).
                 string suffix;
-                if (prevLine.Trim().Equals(closing, StringComparison.Ordinal))
+                if (closingRegex.Match(prevLine.ToString()) is { } m && m.Success)
                 {
-                    suffix = lineEnd + indent + closing;
-                }
-                else if (prevLine.EndsWith(closing, StringComparison.Ordinal))
-                {
-                    suffix = closing;
+                    if (prevLine[..m.Index].IsWhiteSpace())
+                    {
+                        // The parenthesis is on a separate line.
+                        suffix = $"{lineEnd}{indent}{m.ValueSpan}";
+                    }
+                    else
+                    {
+                        suffix = m.Value[1..];
+                    }
                 }
                 else
                 {
