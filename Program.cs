@@ -35,9 +35,15 @@ internal class Program
         var cache = new Dictionary<string, string>();
         var blocks = new Dictionary<string, List<Replacement>>();
         var classNames = new HashSet<string>();
+        var testMethods = new HashSet<(string, string, string)>();
         var counter = 0;
         foreach (var result in ParseTestOutput())
         {
+            if (!testMethods.Add((result.Source.Namespace, result.Source.ClassName, result.Source.MethodName)))
+            {
+                Console.WriteLine($"Skipped duplicate test: {++counter} ({result.Source})");
+                continue;
+            }
             Console.WriteLine($"Found test output: {++counter}");
             var replacement = FindExpectedBlock(cache, result);
             if (!blocks.TryGetValue(result.Source.Path, out var list))
