@@ -15,13 +15,13 @@ internal class Program
         FoundStackTrace,
     }
 
-    readonly record struct FileAndLocation(string Path, int Line, int Column, string MethodName);
+    readonly record struct FileAndLocation(string Path, int Line, int Column, string Namespace, string ClassName, string MethodName);
 
     readonly record struct ParsingResult(string Actual, FileAndLocation Source);
     
     readonly record struct Replacement(int Start, int End, string Target);
 
-    static readonly Regex stackTraceEntryRegex = new(@"\((\d+),(\d+)\): at (\w+\.)*(\w+)", RegexOptions.Compiled);
+    static readonly Regex stackTraceEntryRegex = new(@"\((\d+),(\d+)\): at ((\w+\.)*)(\w+)\.(\w+)", RegexOptions.Compiled);
 
     static readonly Regex startRegex = new("^(?!$)", RegexOptions.Compiled | RegexOptions.Multiline);
 
@@ -33,6 +33,7 @@ internal class Program
         // Find blocks to rewrite.
         var cache = new Dictionary<string, string>();
         var blocks = new Dictionary<string, List<Replacement>>();
+        var classNames = new HashSet<string>();
         var counter = 0;
         foreach (var result in ParseTestOutput())
         {
@@ -44,6 +45,7 @@ internal class Program
                 blocks.Add(result.Source.Path, list);
             }
             list.Add(replacement);
+            classNames.Add(result.Source.ClassName);
         }
 
         // Construct new file contents.
@@ -63,6 +65,19 @@ internal class Program
 
             File.WriteAllText(file, contents, encoding);
             Console.WriteLine("Done.");
+        }
+
+        // Write test playlist.
+        var playlistPath = Path.GetFullPath("test.playlist");
+        using (var file = File.CreateText(playlistPath))
+        {
+            file.WriteLine("<Playlist Version=\"2.0\"><Rule Match=\"Any\">");
+            foreach (var className in classNames)
+            {
+                file.WriteLine($"<Property Name=\"Class\" Value=\"{className}\" />");
+            }
+            file.WriteLine("</Rule></Playlist>");
+            Console.WriteLine($"Wrote {playlistPath}");
         }
     }
 
@@ -276,7 +291,9 @@ internal class Program
                             Path: RemoveIndent(line[..match.Index]),
                             Line: int.Parse(match.Groups[1].ValueSpan),
                             Column: int.Parse(match.Groups[2].ValueSpan),
-                            MethodName: match.Groups[4].Value);
+                            Namespace: match.Groups[3].Value,
+                            ClassName: match.Groups[5].Value,
+                            MethodName: match.Groups[6].Value);
                         continue;
                     }
                     if (lastStackTraceLine != null)
