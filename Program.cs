@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace RoslynTestUpdater;
@@ -21,8 +22,6 @@ internal class Program
     static readonly Regex stackTraceEntryRegex = new(@"\((\d+),(\d+)\): at ", RegexOptions.Compiled);
 
     static readonly Regex startRegex = new("^(?!$)", RegexOptions.Compiled | RegexOptions.Multiline);
-
-    static readonly Regex endOfLineRegex = new(@"\r\n|[\r\n]", RegexOptions.Compiled);
 
     // UTF8 with BOM
     static readonly Encoding encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: true);
@@ -76,27 +75,23 @@ internal class Program
             Console.WriteLine("Done.");
         }
 
+        var reader = new LineReader(contents);
+
         // Find the line.
-        var position = 0;
         for (var i = 0; i < source.Line - 1; i++)
         {
-            var match = endOfLineRegex.Match(contents, position);
-            if (!match.Success)
+            if (!reader.ReadLine())
             {
                 throw new InvalidOperationException($"Cannot find {source}; the file ends on line {i + 1}");
             }
-            position = match.Index + match.Length;
         }
 
         // Skip to line that actually contains the diagnostics call.
-        var backup = position;
         while (true)
         {
-            if (endOfLineRegex.Match(contents, position) is { } m && m.Success)
+            if (reader.ReadLine())
             {
-                var line = contents[position..m.Index];
-                position = m.Index + m.Length;
-                if (line.Contains("Diagnostics("))
+                if (reader.LastLine.Contains("Diagnostics(", StringComparison.Ordinal))
                 {
                     break;
                 }
@@ -108,41 +103,36 @@ internal class Program
         }
 
         // Get indented block starting on the next line.
-        var firstLineMatch = endOfLineRegex.Match(contents, position);
-        if (!firstLineMatch.Success)
+        var start = reader.Position;
+        if (!reader.ReadLine())
         {
             throw new InvalidOperationException($"Unexpected EOF just after {source}");
         }
-        var firstLine = contents[position..firstLineMatch.Index];
-        var lineEnd = firstLineMatch.Value;
-        var indent = string.Join(null, firstLine.TakeWhile(char.IsWhiteSpace));
+        var lineEnd = reader.LastLineEnd.ToString();
+        var indent = string.Join(null, reader.LastLine.ToString().TakeWhile(char.IsWhiteSpace));
         if (indent.Length == 0)
         {
             throw new InvalidOperationException($"Cannot find indent at {source}");
         }
-        var start = position;
-        var end = start;
-        var lastLine = firstLine;
-        position = firstLineMatch.Index + firstLineMatch.Length;
-        while (endOfLineRegex.Match(contents, position) is { } m && m.Success)
+        var end = reader.PositionBeforeLineEnd;
+        var prevLine = reader.LastLine;
+        while (reader.ReadLine())
         {
-            var line = contents[position..m.Index];
-            if (line.StartsWith(indent))
+            if (reader.LastLine.StartsWith(indent, StringComparison.Ordinal))
             {
-                end = m.Index;
-                lastLine = contents[position..end];
-                position = end + m.Length;
+                prevLine = reader.LastLine;
+                end = reader.PositionBeforeLineEnd;
             }
             else
             {
                 // Append `);`.
                 const string closing = ");";
                 string suffix;
-                if (lastLine.Trim() == closing)
+                if (prevLine.Trim().Equals(closing, StringComparison.Ordinal))
                 {
                     suffix = lineEnd + indent + closing;
                 }
-                else if (lastLine.EndsWith(closing))
+                else if (prevLine.EndsWith(closing, StringComparison.Ordinal))
                 {
                     suffix = closing;
                 }
@@ -311,5 +301,33 @@ internal class Program
     static string Indent(string indent, string block)
     {
         return startRegex.Replace(block, indent);
+    }
+}
+
+public ref struct LineReader
+{
+    private static readonly Regex endOfLineRegex = new(@"\r\n|[\r\n]", RegexOptions.Compiled);
+
+    public LineReader(string input)
+    {
+        Input = input;
+    }
+
+    public string Input { get; }
+    public int Position { get; private set; } = 0;
+    public int PositionBeforeLineEnd => Position - LastLineEnd.Length;
+    public ReadOnlySpan<char> LastLine { get; private set; } = default;
+    public ReadOnlySpan<char> LastLineEnd { get; private set; } = default;
+
+    public bool ReadLine()
+    {
+        if (endOfLineRegex.Match(Input, Position) is { } m && m.Success)
+        {
+            LastLine = Input.AsSpan()[Position..m.Index];
+            LastLineEnd = m.ValueSpan;
+            Position = m.Index + m.Length;
+            return true;
+        }
+        return false;
     }
 }
