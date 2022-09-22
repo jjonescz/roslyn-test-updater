@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace RoslynTestUpdater;
@@ -38,6 +40,7 @@ internal class Program
     static void Main()
     {
         // Find blocks to rewrite.
+        var logger = LoggerFactory.Create(b => b.AddConsole()).CreateLogger("RoslynTestUpdater");
         var cache = new Dictionary<string, string>();
         var blocks = new Dictionary<string, List<Replacement>>();
         var classNames = new HashSet<string>();
@@ -51,14 +54,16 @@ internal class Program
                 continue;
             }
             Console.WriteLine($"Found test output: {++counter}");
-            var replacement = FindExpectedBlock(cache, result);
-            if (!blocks.TryGetValue(result.Source.Path, out var list))
+            if (FindExpectedBlock(logger, cache, result) is { } replacement)
             {
-                list = new(1);
-                blocks.Add(result.Source.Path, list);
+                if (!blocks.TryGetValue(result.Source.Path, out var list))
+                {
+                    list = new(1);
+                    blocks.Add(result.Source.Path, list);
+                }
+                list.Add(replacement);
+                classNames.Add(result.Source.ClassName);
             }
-            list.Add(replacement);
-            classNames.Add(result.Source.ClassName);
         }
 
         // Construct new file contents.
@@ -94,7 +99,7 @@ internal class Program
         }
     }
 
-    static Replacement FindExpectedBlock(IDictionary<string, string> cache, ParsingResult parsingResult)
+    static Replacement? FindExpectedBlock(ILogger logger, IDictionary<string, string> cache, ParsingResult parsingResult)
     {
         var (actual, source) = parsingResult;
 
@@ -114,7 +119,8 @@ internal class Program
         {
             if (!reader.ReadLine())
             {
-                throw new InvalidOperationException($"Cannot find {source}; the file ends on line {i + 1}");
+                logger.LogWarning($"Cannot find {source}; the file ends on line {i + 1}");
+                return null;
             }
         }
 
@@ -133,7 +139,8 @@ internal class Program
             }
             else
             {
-                throw new InvalidOperationException($"Unexpected EOF while finding diagnostics call at {source}");
+                logger.LogWarning($"Unexpected EOF while finding diagnostics call at {source}");
+                return null;
             }
         }
         afterLoop:
@@ -142,13 +149,15 @@ internal class Program
         var start = reader.Position;
         if (!reader.ReadLine())
         {
-            throw new InvalidOperationException($"Unexpected EOF just after {source}");
+            logger.LogWarning($"Unexpected EOF just after {source}");
+            return null;
         }
         var lineEnd = reader.LastLineEnd.ToString();
         var indent = string.Join(null, reader.LastLine.ToString().TakeWhile(char.IsWhiteSpace));
         if (indent.Length == 0)
         {
-            throw new InvalidOperationException($"Cannot find indent at {source}");
+            logger.LogWarning($"Cannot find indent at {source}");
+            return null;
         }
         var end = reader.PositionBeforeLineEnd;
         var prevLine = reader.LastLine;
@@ -182,7 +191,8 @@ internal class Program
                 return new(start, end, Indent(indent, actual).ReplaceLineEndings(lineEnd) + suffix);
             }
         }
-        throw new InvalidOperationException($"Unexpected EOF while finding block at {source}");
+        logger.LogWarning($"Unexpected EOF while finding block at {source}");
+        return null;
     }
 
     static IEnumerable<ParsingResult> ParseTestOutput()
