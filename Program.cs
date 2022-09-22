@@ -1,11 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Console;
 using System.Text;
 using System.Text.RegularExpressions;
 
 namespace RoslynTestUpdater;
 
-internal class Program
+public class Program
 {
     enum State
     {
@@ -39,14 +38,28 @@ internal class Program
 
     static void Main()
     {
+        var program = new Program(new PhysicalFileSystem());
+        program.Run(Console.In);
+    }
+
+    private readonly ILogger logger;
+    private readonly IFileSystem fileSystem;
+
+    public Program(IFileSystem fileSystem)
+    {
+        this.logger = LoggerFactory.Create(b => b.AddConsole()).CreateLogger("RoslynTestUpdater");
+        this.fileSystem = fileSystem;
+    }
+
+    public void Run(TextReader input)
+    {
         // Find blocks to rewrite.
-        var logger = LoggerFactory.Create(b => b.AddConsole()).CreateLogger("RoslynTestUpdater");
         var cache = new Dictionary<string, string>();
         var blocks = new Dictionary<string, List<Replacement>>();
         var classNames = new HashSet<string>();
         var testMethods = new HashSet<(string, string, string)>();
         var counter = 0;
-        foreach (var result in ParseTestOutput())
+        foreach (var result in ParseTestOutput(input))
         {
             if (!testMethods.Add((result.Source.Namespace, result.Source.ClassName, result.Source.MethodName)))
             {
@@ -54,7 +67,7 @@ internal class Program
                 continue;
             }
             Console.WriteLine($"Found test output: {++counter}");
-            if (FindExpectedBlock(logger, cache, result) is { } replacement)
+            if (FindExpectedBlock(cache, result) is { } replacement)
             {
                 if (!blocks.TryGetValue(result.Source.Path, out var list))
                 {
@@ -81,13 +94,13 @@ internal class Program
                 delta += replacement.Length - (end + 1 - start);
             }
 
-            File.WriteAllText(file, contents, encoding);
+            fileSystem.WriteAllText(file, contents, encoding);
             Console.WriteLine("Done.");
         }
 
         // Write test playlist.
-        var playlistPath = Path.GetFullPath("test.playlist");
-        using (var file = File.CreateText(playlistPath))
+        var playlistPath = fileSystem.GetFullPath("test.playlist");
+        using (var file = fileSystem.CreateText(playlistPath))
         {
             file.WriteLine("<Playlist Version=\"2.0\"><Rule Match=\"Any\">");
             foreach (var className in classNames)
@@ -99,7 +112,7 @@ internal class Program
         }
     }
 
-    static Replacement? FindExpectedBlock(ILogger logger, IDictionary<string, string> cache, ParsingResult parsingResult)
+    Replacement? FindExpectedBlock(IDictionary<string, string> cache, ParsingResult parsingResult)
     {
         var (actual, source) = parsingResult;
 
@@ -107,7 +120,7 @@ internal class Program
         if (!cache.TryGetValue(source.Path, out var contents))
         {
             Console.Write($"Reading {source.Path}... ");
-            contents = File.ReadAllText(source.Path);
+            contents = fileSystem.ReadAllText(source.Path);
             cache.Add(source.Path, contents);
             Console.WriteLine("Done.");
         }
@@ -143,7 +156,7 @@ internal class Program
                 return null;
             }
         }
-        afterLoop:
+    afterLoop:
 
         // Get indented block starting on the next line.
         var start = reader.Position;
@@ -195,7 +208,7 @@ internal class Program
         return null;
     }
 
-    static IEnumerable<ParsingResult> ParseTestOutput()
+    static IEnumerable<ParsingResult> ParseTestOutput(TextReader reader)
     {
         /*
 [xUnit.net 00:00:07.38]     Microsoft.CodeAnalysis.CSharp.UnitTests.RefFieldTests.AssignValueTo_InstanceMethod_RefReadonlyField [FAIL]
@@ -263,7 +276,7 @@ internal class Program
         {
             if (readNextLine)
             {
-                return Console.ReadLine();
+                return reader.ReadLine();
             }
             readNextLine = true;
             return line;
@@ -327,7 +340,7 @@ internal class Program
                     }
                     if (lastStackTraceLine != null)
                     {
-                        yield return new(actual.ToString().TrimEnd(), lastStackTraceLine.Value);
+                        yield return GetResult();
                     }
                     readNextLine = false;
                     state = State.Searching;
@@ -337,6 +350,12 @@ internal class Program
                     throw new InvalidOperationException($"Unexpected state: {state}");
             }
         }
+        if (lastStackTraceLine != null)
+        {
+            yield return GetResult();
+        }
+
+        ParsingResult GetResult() => new(actual.ToString().TrimEnd(), lastStackTraceLine.Value);
     }
 
     static string RemoveIndent(string line)
@@ -381,5 +400,36 @@ public ref struct LineReader
             return true;
         }
         return false;
+    }
+}
+
+public interface IFileSystem
+{
+    StreamWriter CreateText(string path);
+    string GetFullPath(string path);
+    string ReadAllText(string path);
+    void WriteAllText(string path, string? contents, Encoding encoding);
+}
+
+public class PhysicalFileSystem : IFileSystem
+{
+    public StreamWriter CreateText(string path)
+    {
+        return File.CreateText(path);
+    }
+
+    public string GetFullPath(string path)
+    {
+        return Path.GetFullPath(path);
+    }
+
+    public string ReadAllText(string path)
+    {
+        return File.ReadAllText(path);
+    }
+
+    public void WriteAllText(string path, string? contents, Encoding encoding)
+    {
+        File.WriteAllText(path, contents, encoding);
     }
 }
