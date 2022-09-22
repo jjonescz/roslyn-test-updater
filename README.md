@@ -46,6 +46,6 @@ Furthermore, the tool writes `test.playlist` into the current directory with a l
    Get-Clipboard | RoslynTestUpdater
    ```
 
-6. Test code is automatically patched 🎉:
+6. Enjoy automatically patched test code 🎉:
 
    <img width="953" alt="image" src="https://user-images.githubusercontent.com/3669664/191708607-2dc61d36-bd16-4701-90ea-bbc321c31478.png">
