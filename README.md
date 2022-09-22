@@ -7,6 +7,16 @@ This simple command-line tool automatically updates snapshot tests in the [Rosly
 > Therefore, it often fails for tests formatted in non-standard way.
 > However, PRs are welcome!
 
+## Building
+
+```ps1
+dotnet publish -c Release /p:PublishProfile=FolderProfile
+```
+
+(Or use Visual Studio and hit "Publish".)
+
+Then add the resulting folder to `PATH` (or copy the `.exe`, it's self-contained).
+
 ## Usage
 
 Provide (failed) test outputs on stdin (see [an example of accepted input](https://github.com/jjonescz/roslyn-test-updater/blob/91efb6c3b23b03f09a65e22d183dd6522eabe04b/Program.cs#L191-L246)).
