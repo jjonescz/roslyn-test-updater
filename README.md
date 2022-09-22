@@ -17,6 +17,10 @@ The tool automatically patches testing code to match reality.
 
 Furthermore, the tool writes `test.playlist` into the current directory with a list of failed tests (in Visual Studio Test Explorer format).
 
+### From command line
+
+`dotnet test | RoslynTestUpdater` should work.
+
 ### From Visual Studio
 
 1. Clear Tests Output:
