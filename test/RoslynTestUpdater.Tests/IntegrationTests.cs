@@ -1,3 +1,4 @@
+using CSharpDiff.Patches;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -66,6 +67,9 @@ public class TestFileSystem : IFileSystem
 
     public void WriteAllText(string path, string? contents, Encoding encoding)
     {
-        File.WriteAllText(TranslatePath(path, canUseRoot: false), contents, encoding);
+        var original = ReadAllText(path);
+        var patch = new Patch().create(Path.GetFileName(path), original, contents);
+        var target = $"{TranslatePath(path, canUseRoot: false)}.patch";
+        File.WriteAllText(target, patch);
     }
 }
