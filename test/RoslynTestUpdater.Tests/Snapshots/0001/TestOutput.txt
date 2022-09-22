@@ -1,0 +1,23 @@
+﻿[xUnit.net 00:00:01.66]     Microsoft.CodeAnalysis.CSharp.UnitTests.CodeGenRefReadOnlyReturnTests.ReadonlyReturnByRefReadonlyLiteralSafety1 [FAIL]
+[xUnit.net 00:00:01.67]       
+[xUnit.net 00:00:01.67]       Expected:
+[xUnit.net 00:00:01.67]                       Diagnostic(ErrorCode.ERR_RefReturnLvalueExpected, "42").WithLocation(6, 25),
+[xUnit.net 00:00:01.67]                       Diagnostic(ErrorCode.ERR_EscapeCall, "this[42]").WithArguments("Program.this[in int]", "x").WithLocation(6, 20)
+[xUnit.net 00:00:01.67]       Actual:
+[xUnit.net 00:00:01.67]                       // (6,25): error CS8156: An expression cannot be used in this context because it may not be passed or returned by reference
+[xUnit.net 00:00:01.67]                       //         return ref this[42];
+[xUnit.net 00:00:01.67]                       Diagnostic(ErrorCode.ERR_RefReturnLvalueExpected, "42").WithLocation(6, 25),
+[xUnit.net 00:00:01.67]                       // (6,20): error CS8347: Cannot use a result of 'Program.this[in int x]' in this context because it may expose variables referenced by parameter 'x' outside of their declaration scope
+[xUnit.net 00:00:01.67]                       //         return ref this[42];
+[xUnit.net 00:00:01.67]                       Diagnostic(ErrorCode.ERR_EscapeCall, "this[42]").WithArguments("Program.this[in int x]", "x").WithLocation(6, 20)
+[xUnit.net 00:00:01.67]       Diff:
+[xUnit.net 00:00:01.67]       ++>                 Diagnostic(ErrorCode.ERR_EscapeCall, "this[42]").WithArguments("Program.this[in int x]", "x").WithLocation(6, 20)
+[xUnit.net 00:00:01.67]       -->                 Diagnostic(ErrorCode.ERR_EscapeCall, "this[42]").WithArguments("Program.this[in int]", "x").WithLocation(6, 20)
+[xUnit.net 00:00:01.67]       Expected: True
+[xUnit.net 00:00:01.67]       Actual:   False
+[xUnit.net 00:00:01.67]       Stack Trace:
+[xUnit.net 00:00:01.67]         C:\roslyn\src\Compilers\Test\Core\Diagnostics\DiagnosticExtensions.cs(98,0): at Microsoft.CodeAnalysis.DiagnosticExtensions.Verify(IEnumerable`1 actual, DiagnosticDescription[] expected, Boolean errorCodeOnly)
+[xUnit.net 00:00:01.67]         C:\roslyn\src\Compilers\Test\Core\Diagnostics\DiagnosticExtensions.cs(48,0): at Microsoft.CodeAnalysis.DiagnosticExtensions.Verify(IEnumerable`1 actual, DiagnosticDescription[] expected)
+[xUnit.net 00:00:01.67]         C:\roslyn\src\Compilers\Test\Core\Diagnostics\DiagnosticExtensions.cs(63,0): at Microsoft.CodeAnalysis.DiagnosticExtensions.Verify(ImmutableArray`1 actual, DiagnosticDescription[] expected)
+[xUnit.net 00:00:01.67]         C:\roslyn\src\Compilers\Test\Core\Diagnostics\DiagnosticExtensions.cs(108,0): at Microsoft.CodeAnalysis.DiagnosticExtensions.VerifyDiagnostics[TCompilation](TCompilation c, DiagnosticDescription[] expected)
+[xUnit.net 00:00:01.67]         C:\roslyn\src\Compilers\CSharp\Test\Emit\CodeGen\CodeGenRefReadonlyReturnTests.cs(1046,0): at Microsoft.CodeAnalysis.CSharp.UnitTests.CodeGenRefReadOnlyReturnTests.ReadonlyReturnByRefReadonlyLiteralSafety1()
