@@ -8,8 +8,9 @@ public class IntegrationTests
 {
     [Theory]
     [MemberData(nameof(SnapshotDirs))]
-    public void Snapshots(string snapshotDirPath)
+    public void Snapshots(string snapshotDirName)
     {
+        var snapshotDirPath = Path.Join(GetTestsDirPath(), snapshotDirName);
         using var testOutput = new StreamReader(Path.Join(snapshotDirPath, "TestOutput.txt"));
         var fileSystem = new TestFileSystem(snapshotDirPath);
         var program = new Program(fileSystem);
@@ -18,15 +19,19 @@ public class IntegrationTests
 
     public static TheoryData<string> SnapshotDirs => FindSnapshotDirs();
 
-    private static TheoryData<string> FindSnapshotDirs([CallerFilePath] string testFilePath = null!)
+    private static TheoryData<string> FindSnapshotDirs()
     {
-        var testsDirPath = Path.Join(Path.GetDirectoryName(testFilePath), "Snapshots");
         var result = new TheoryData<string>();
-        foreach (var snapshotDirPath in Directory.EnumerateDirectories(testsDirPath))
+        foreach (var snapshotDirPath in Directory.EnumerateDirectories(GetTestsDirPath()))
         {
-            result.Add(snapshotDirPath);
+            result.Add(Path.GetFileName(snapshotDirPath));
         }
         return result;
+    }
+
+    private static string GetTestsDirPath([CallerFilePath] string testFilePath = null!)
+    {
+        return Path.Join(Path.GetDirectoryName(testFilePath), "Snapshots");
     }
 }
 
