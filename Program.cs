@@ -176,7 +176,10 @@ public class Program
         var prevLine = reader.LastLine;
         while (reader.ReadLine())
         {
-            if (reader.LastLine.StartsWith(indent, StringComparison.Ordinal))
+            // Read as long as the indentation is the same.
+            if (reader.LastLine.Length > indent.Length &&
+                reader.LastLine.StartsWith(indent, StringComparison.Ordinal) &&
+                !reader.LastLine[indent.Length..(indent.Length + 1)].IsWhiteSpace())
             {
                 prevLine = reader.LastLine;
                 end = reader.PositionBeforeLineEnd;
