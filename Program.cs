@@ -10,6 +10,7 @@ public class Program
     {
         Searching,
         FoundFailedTest,
+        FoundExpected,
         FoundActual,
         AfterActual,
         FoundStackTrace,
@@ -17,7 +18,7 @@ public class Program
 
     readonly record struct FileAndLocation(string Path, int Line, int Column, string Namespace, string ClassName, string MethodName);
 
-    readonly record struct ParsingResult(string Actual, FileAndLocation Source);
+    readonly record struct ParsingResult(IReadOnlyList<string> Expected, string Actual, FileAndLocation Source);
 
     readonly record struct Replacement(int Start, int End, string Target);
 
@@ -114,7 +115,7 @@ public class Program
 
     Replacement? FindExpectedBlock(IDictionary<string, string> cache, ParsingResult parsingResult)
     {
-        var (actual, source) = parsingResult;
+        var (expected, actual, source) = parsingResult;
 
         // Get and cache file contents.
         if (!cache.TryGetValue(source.Path, out var contents))
@@ -272,6 +273,7 @@ public class Program
 [xUnit.net 00:00:07.38]         C:\Users\janjones\Code\roslyn\src\Compilers\CSharp\Test\Semantic\Semantics\RefFieldTests.cs(3946,0): at Microsoft.CodeAnalysis.CSharp.UnitTests.RefFieldTests.AssignValueTo_InstanceMethod_RefReadonlyField()
          */
         var state = State.Searching;
+        var expected = new List<string>();
         var actual = new StringBuilder();
         FileAndLocation? lastStackTraceLine = null;
         var readNextLine = true;
@@ -297,10 +299,21 @@ public class Program
                     state = State.FoundFailedTest;
                     continue;
 
-                // Find block with actual diagnostics.
+                // Find block with expected diagnostics (those currently in code).
                 case State.FoundFailedTest:
+                    if (!line.EndsWith("Expected:"))
+                    {
+                        continue;
+                    }
+                    state = State.FoundExpected;
+                    expected.Clear();
+                    continue;
+
+                // Find block with actual diagnostics (those that the current should be replaced with).
+                case State.FoundExpected:
                     if (!line.EndsWith("Actual:"))
                     {
+                        expected.Add(RemoveIndent(line));
                         continue;
                     }
                     state = State.FoundActual;
@@ -358,7 +371,7 @@ public class Program
             yield return GetResult();
         }
 
-        ParsingResult GetResult() => new(actual.ToString().TrimEnd(), lastStackTraceLine.Value);
+        ParsingResult GetResult() => new(expected, actual.ToString().TrimEnd(), lastStackTraceLine.Value);
     }
 
     static string RemoveIndent(string line)
