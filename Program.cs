@@ -128,7 +128,7 @@ public class Program
 
         var reader = new LineReader(contents);
 
-        // Find the line.
+        // Skip to the line reported in the stack trace.
         for (var i = 0; i < source.Line - 1; i++)
         {
             if (!reader.ReadLine())
@@ -138,78 +138,81 @@ public class Program
             }
         }
 
-        // Skip to line that actually contains the diagnostics call.
-        while (true)
+        // Find current lines (printed as "Expected:" in the test output).
+        var start = -1;
+        int? positionBeforeCommentBlock = null;
+        var searchingLine = 0;
+        while (searchingLine < expected.Count)
         {
-            if (reader.ReadLine())
+            if (!reader.ReadLine())
             {
-                foreach (var clue in clues)
-                {
-                    if (reader.LastLine.Contains(clue, StringComparison.Ordinal))
-                    {
-                        goto afterLoop;
-                    }
-                }
-            }
-            else
-            {
-                logger.LogWarning($"Unexpected EOF while finding diagnostics call at {source}");
+                logger.LogWarning($"Unexpected EOF after expected line {searchingLine} for {source}");
                 return null;
             }
-        }
-    afterLoop:
 
-        // Get indented block starting on the next line.
-        var start = reader.Position;
-        if (!reader.ReadLine())
-        {
-            logger.LogWarning($"Unexpected EOF just after {source}");
-            return null;
-        }
-        var lineEnd = reader.LastLineEnd.ToString();
-        var indent = string.Join(null, reader.LastLine.ToString().TakeWhile(char.IsWhiteSpace));
-        if (indent.Length == 0)
-        {
-            logger.LogWarning($"Cannot find indent at {source}");
-            return null;
-        }
-        var end = reader.PositionBeforeLineEnd;
-        var prevLine = reader.LastLine;
-        while (reader.ReadLine())
-        {
-            // Read as long as the indentation is the same (but ignore empty lines).
-            if (reader.LastLine.Length == 0 || (reader.LastLine.Length > indent.Length &&
-                reader.LastLine.StartsWith(indent, StringComparison.Ordinal) &&
-                !reader.LastLine[indent.Length..(indent.Length + 1)].IsWhiteSpace()))
+            // Have we found the next expected code line?
+            var needle = expected[searchingLine];
+            if (reader.LastLine.TrimStart().StartsWith(needle, StringComparison.Ordinal))
             {
-                prevLine = reader.LastLine;
-                end = reader.PositionBeforeLineEnd;
+                if (searchingLine == 0)
+                {
+                    start = positionBeforeCommentBlock is int p ? p : reader.StartOfLinePosition;
+                }
+                searchingLine++;
+                continue;
+            }
+
+            // Ignore comments but remember their count.
+            if (reader.LastLine.TrimStart().StartsWith("//", StringComparison.Ordinal))
+            {
+                positionBeforeCommentBlock ??= reader.StartOfLinePosition;
+                continue;
+            }
+
+            // Ignore anything when searching for the first line.
+            if (searchingLine == 0)
+            {
+                continue;
+            }
+
+            // Otherwise, ignore also empty lines.
+            if (reader.LastLine.Length == 0)
+            {
+                continue;
+            }
+
+            // But nothing else.
+            logger.LogWarning($"Found unexpected line {reader.LineCount} in expected block for {source}: {reader.LastLine}");
+            return null;
+        }
+        if (start < 0)
+        {
+            logger.LogWarning($"Cannot find start of expected block for {source}");
+            return null;
+        }
+
+        // Detect indentation.
+        var indent = string.Join(null, reader.LastLine.ToString().TakeWhile(char.IsWhiteSpace));
+
+        // Append `);` (repeat the parenthesis as it was on the input).
+        string suffix;
+        if (closingRegex.Match(reader.LastLine.ToString()) is { } m && m.Success)
+        {
+            if (reader.LastLine[..m.Index].IsWhiteSpace())
+            {
+                // The parenthesis is on a separate line.
+                suffix = $"{reader.LastLineEnd}{indent}{m.ValueSpan}";
             }
             else
             {
-                // Append `);` (repeat the parenthesis as it was on the input).
-                string suffix;
-                if (closingRegex.Match(prevLine.ToString()) is { } m && m.Success)
-                {
-                    if (prevLine[..m.Index].IsWhiteSpace())
-                    {
-                        // The parenthesis is on a separate line.
-                        suffix = $"{lineEnd}{indent}{m.ValueSpan}";
-                    }
-                    else
-                    {
-                        suffix = m.Value[1..];
-                    }
-                }
-                else
-                {
-                    suffix = string.Empty;
-                }
-                return new(start, end, Indent(indent, actual).ReplaceLineEndings(lineEnd) + suffix);
+                suffix = m.Value[1..];
             }
         }
-        logger.LogWarning($"Unexpected EOF while finding block at {source}");
-        return null;
+        else
+        {
+            suffix = string.Empty;
+        }
+        return new(start, reader.PositionBeforeLineEnd, Indent(indent, actual).ReplaceLineEndings(reader.LastLineEnd.ToString()) + suffix);
     }
 
     static IEnumerable<ParsingResult> ParseTestOutput(TextReader reader)
@@ -401,8 +404,10 @@ public ref struct LineReader
     }
 
     public string Input { get; }
-    public int Position { get; private set; } = 0;
+    public int StartOfLinePosition { get; private set; }
+    public int Position { get; private set; }
     public int PositionBeforeLineEnd => Position - LastLineEnd.Length;
+    public int LineCount { get; private set; }
     public ReadOnlySpan<char> LastLine { get; private set; } = default;
     public ReadOnlySpan<char> LastLineEnd { get; private set; } = default;
 
@@ -412,7 +417,9 @@ public ref struct LineReader
         {
             LastLine = Input.AsSpan()[Position..m.Index];
             LastLineEnd = m.ValueSpan;
+            StartOfLinePosition = Position;
             Position = m.Index + m.Length;
+            LineCount++;
             return true;
         }
         return false;
