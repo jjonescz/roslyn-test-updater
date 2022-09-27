@@ -176,10 +176,10 @@ public class Program
         var prevLine = reader.LastLine;
         while (reader.ReadLine())
         {
-            // Read as long as the indentation is the same.
-            if (reader.LastLine.Length > indent.Length &&
+            // Read as long as the indentation is the same (but ignore empty lines).
+            if (reader.LastLine.Length == 0 || (reader.LastLine.Length > indent.Length &&
                 reader.LastLine.StartsWith(indent, StringComparison.Ordinal) &&
-                !reader.LastLine[indent.Length..(indent.Length + 1)].IsWhiteSpace())
+                !reader.LastLine[indent.Length..(indent.Length + 1)].IsWhiteSpace()))
             {
                 prevLine = reader.LastLine;
                 end = reader.PositionBeforeLineEnd;
