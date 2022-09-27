@@ -6,15 +6,29 @@ namespace RoslynTestUpdater.Tests;
 
 public class IntegrationTests
 {
+    private const string TestOutputFileName = "TestOutput.txt";
+
     [Theory]
     [MemberData(nameof(SnapshotDirs))]
     public void Snapshots(string snapshotDirName)
     {
         var snapshotDirPath = Path.Join(GetTestsDirPath(), snapshotDirName);
-        using var testOutput = new StreamReader(Path.Join(snapshotDirPath, "TestOutput.txt"));
         var fileSystem = new TestFileSystem(snapshotDirPath);
         var program = new Program(fileSystem);
-        program.Run(testOutput);
+        using (var testOutput = new StreamReader(Path.Join(snapshotDirPath, TestOutputFileName)))
+        {
+            program.Run(testOutput);
+        }
+
+        // Remove untouched files.
+        foreach (var file in Directory.EnumerateFiles(snapshotDirPath, "*", SearchOption.AllDirectories))
+        {
+            var fileName = Path.GetFileName(file);
+            if (!fileSystem.TouchedFiles.Contains(file) && fileName != TestOutputFileName)
+            {
+                File.Delete(file);
+            }
+        }
     }
 
     public static TheoryData<string> SnapshotDirs => FindSnapshotDirs();
@@ -37,6 +51,8 @@ public class IntegrationTests
 
 public class TestFileSystem : IFileSystem
 {
+    private readonly HashSet<string> touchedFiles = new();
+
     public TestFileSystem(string snapshotDirPath)
     {
         SnapshotDirPath = snapshotDirPath;
@@ -45,6 +61,7 @@ public class TestFileSystem : IFileSystem
 
     public string SnapshotDirPath { get; }
     public string SnapshotsRootPath { get; }
+    public IReadOnlySet<string> TouchedFiles => touchedFiles;
 
     private string TranslatePath(string path, bool canUseRoot)
     {
@@ -57,7 +74,9 @@ public class TestFileSystem : IFileSystem
 
     public StreamWriter CreateText(string path)
     {
-        return File.CreateText(TranslatePath(path, canUseRoot: false));
+        var translatedPath = TranslatePath(path, canUseRoot: false);
+        touchedFiles.Add(translatedPath);
+        return File.CreateText(translatedPath);
     }
 
     public string GetFullPath(string path)
@@ -75,6 +94,7 @@ public class TestFileSystem : IFileSystem
         var original = ReadAllText(path);
         var patch = new Patch().create(Path.GetFileName(path), original, contents);
         var target = $"{TranslatePath(path, canUseRoot: false)}.patch";
+        touchedFiles.Add(target);
         File.WriteAllText(target, patch);
     }
 }
