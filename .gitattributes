@@ -3,6 +3,9 @@
 ###############################################################################
 * text=auto
 
+# Avoid auto CRLF changes in snapshot files.
+**/Snapshots/** -text
+
 ###############################################################################
 # Set default behavior for command prompt diff.
 #
