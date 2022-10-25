@@ -75,7 +75,17 @@ public class TestFileSystem : IFileSystem
     public string SnapshotsRootPath { get; }
     public IReadOnlySet<string> TouchedFiles => touchedFiles;
 
-    private string TranslatePath(string path, bool canUseRoot)
+    private string TranslatePath(string path, bool canUseRoot, bool touch = true)
+    {
+        var translatedPath = TranslatePathCore(path: path, canUseRoot: canUseRoot);
+        if (touch)
+        {
+            touchedFiles.Add(translatedPath);
+        }
+        return translatedPath;
+    }
+
+    private string TranslatePathCore(string path, bool canUseRoot)
     {
         if (canUseRoot && path.StartsWith("C:"))
         {
@@ -86,9 +96,7 @@ public class TestFileSystem : IFileSystem
 
     public StreamWriter CreateText(string path)
     {
-        var translatedPath = TranslatePath(path, canUseRoot: false);
-        touchedFiles.Add(translatedPath);
-        return File.CreateText(translatedPath);
+        return File.CreateText(TranslatePath(path, canUseRoot: false));
     }
 
     public string GetFullPath(string path)
@@ -105,7 +113,7 @@ public class TestFileSystem : IFileSystem
     {
         var original = ReadAllText(path);
         var patch = new Patch().create(Path.GetFileName(path), original, contents);
-        var target = $"{TranslatePath(path, canUseRoot: false)}.patch";
+        var target = $"{TranslatePath(path, canUseRoot: false, touch: false)}.patch";
         touchedFiles.Add(target);
         File.WriteAllText(target, patch);
     }
