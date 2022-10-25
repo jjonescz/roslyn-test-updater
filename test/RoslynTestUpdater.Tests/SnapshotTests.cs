@@ -5,12 +5,12 @@ using Xunit.Abstractions;
 
 namespace RoslynTestUpdater.Tests;
 
-public sealed class IntegrationTests : IDisposable
+public sealed class SnapshotTests : IDisposable
 {
     private const string TestOutputFileName = "TestOutput.txt";
     private readonly RedirectOutput redirectOutput;
 
-    public IntegrationTests(ITestOutputHelper output)
+    public SnapshotTests(ITestOutputHelper output)
     {
         Console.SetOut(redirectOutput = new RedirectOutput(output));
     }
