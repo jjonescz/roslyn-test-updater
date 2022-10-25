@@ -1,0 +1,15 @@
+Index: Tests.cs
+===================================================================
+--- Tests.cs
++++ Tests.cs
+@@ -12,6 +12,9 @@
+         }
+ 
+         """;
+     var comp = CreateCompilation(source);
+-    comp.VerifyDiagnostics();
++    comp.VerifyDiagnostics(
++        // (5,34): error CS1065: Default values are not valid in this context.
++        //         var lam = delegate(int x = 7) { return x; };
++        Diagnostic(ErrorCode.ERR_DefaultValueNotAllowed, "=").WithLocation(5, 34));
+ }

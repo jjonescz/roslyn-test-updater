@@ -138,6 +138,12 @@ public class Program
             }
         }
 
+        // Handle `verifier.VerifyDiagnostics();` (empty expected lines).
+        if (expected.Count == 0)
+        {
+            return HandleEmptyExpectedBlock(reader, actual);
+        }
+
         // Find current lines (printed as "Expected:" in the test output).
         var start = -1;
         int? positionBeforeCommentBlock = null;
@@ -191,8 +197,7 @@ public class Program
             return null;
         }
 
-        // Detect indentation.
-        var indent = string.Join(null, reader.LastLine.ToString().TakeWhile(char.IsWhiteSpace));
+        var indent = reader.DetectIndentation();
 
         // Append `);` (repeat the parenthesis as it was on the input).
         string suffix;
@@ -212,7 +217,35 @@ public class Program
         {
             suffix = string.Empty;
         }
-        return new(start, reader.PositionBeforeLineEnd, Indent(indent, actual).ReplaceLineEndings(reader.LastLineEnd.ToString()) + suffix);
+        return new(start, reader.PositionBeforeLineEnd, IndentAndNormalize(reader, indent, actual) + suffix);
+    }
+
+    static Replacement HandleEmptyExpectedBlock(LineReader reader, string actual)
+    {
+        reader.ReadLine();
+        int start;
+        if (closingRegex.Match(reader.LastLine.ToString()) is { } m && m.Success)
+        {
+            // Start just before the closing `);` if possible.
+            start = reader.StartOfLinePosition + m.Index;
+        }
+        else
+        {
+            // Otherwise, start at the end of the line.
+            start = reader.PositionBeforeLineEnd;
+        }
+
+        // Indent one more than actual.
+        var indent = reader.DetectIndentation() + "    ";
+        return new(start, reader.PositionBeforeLineEnd,
+           reader.LastLineEnd.ToString() +
+           IndentAndNormalize(reader, indent, actual) +
+           ");");
+    }
+
+    static string IndentAndNormalize(in LineReader reader, string indent, string actual)
+    {
+        return Indent(indent, actual).ReplaceLineEndings(reader.LastLineEnd.ToString());
     }
 
     static IEnumerable<ParsingResult> ParseTestOutput(TextReader reader)
@@ -423,6 +456,11 @@ public ref struct LineReader
             return true;
         }
         return false;
+    }
+
+    public string DetectIndentation()
+    {
+        return string.Join(null, LastLine.ToString().TakeWhile(char.IsWhiteSpace));
     }
 }
 
