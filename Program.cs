@@ -463,16 +463,13 @@ public ref struct LineReader
     public LinePosition Position { get; private set; }
     public LinePositionPair PositionPair => new(PreviousPosition, Position);
     public int LineCount { get; private set; }
-    // TODO: These could be computed from PositionPair.
-    public ReadOnlySpan<char> LastLine { get; private set; }
-    public ReadOnlySpan<char> LastLineEnd { get; private set; }
+    public ReadOnlySpan<char> LastLine => PreviousPosition is { } prev ? Input.AsSpan()[prev.AfterEndOfLine..Position.BeforeEndOfLine] : default;
+    public ReadOnlySpan<char> LastLineEnd => Input.AsSpan()[Position.BeforeEndOfLine..Position.AfterEndOfLine];
 
     public bool ReadLine()
     {
         if (endOfLineRegex.Match(Input, Position.AfterEndOfLine) is { } m && m.Success)
         {
-            LastLine = Input.AsSpan()[Position.AfterEndOfLine..m.Index];
-            LastLineEnd = m.ValueSpan;
             PreviousPosition = Position;
             Position = new(
                 StartOfLine: Position.AfterEndOfLine,
