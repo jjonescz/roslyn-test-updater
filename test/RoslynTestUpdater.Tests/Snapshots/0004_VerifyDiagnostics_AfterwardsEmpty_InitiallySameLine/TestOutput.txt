@@ -1,0 +1,18 @@
+﻿[xUnit.net 00:00:05.78]     Microsoft.CodeAnalysis.CSharp.UnitTests.LambdaTests.AnonymousMethodWithExplicitDefaultParam [FAIL]
+[xUnit.net 00:00:05.78]       
+[xUnit.net 00:00:05.78]       Expected:
+[xUnit.net 00:00:05.78]                       Diagnostic(ErrorCode.ERR_DefaultValueNotAllowed, "=").WithLocation(5, 34)
+[xUnit.net 00:00:05.78]       Actual:
+[xUnit.net 00:00:05.78]       Diff:
+[xUnit.net 00:00:05.78]       -->                 Diagnostic(ErrorCode.ERR_DefaultValueNotAllowed, "=").WithLocation(5, 34)
+[xUnit.net 00:00:05.78]       Expected: True
+[xUnit.net 00:00:05.78]       Actual:   False
+[xUnit.net 00:00:05.78]       Stack Trace:
+[xUnit.net 00:00:05.78]         C:\DiagnosticExtensions.cs(98,0): at Microsoft.CodeAnalysis.DiagnosticExtensions.Verify(IEnumerable`1 actual, DiagnosticDescription[] expected, Boolean errorCodeOnly)
+[xUnit.net 00:00:05.78]         C:\DiagnosticExtensions.cs(48,0): at Microsoft.CodeAnalysis.DiagnosticExtensions.Verify(IEnumerable`1 actual, DiagnosticDescription[] expected)
+[xUnit.net 00:00:05.78]         C:\DiagnosticExtensions.cs(63,0): at Microsoft.CodeAnalysis.DiagnosticExtensions.Verify(ImmutableArray`1 actual, DiagnosticDescription[] expected)
+[xUnit.net 00:00:05.78]         C:\DiagnosticExtensions.cs(108,0): at Microsoft.CodeAnalysis.DiagnosticExtensions.VerifyDiagnostics[TCompilation](TCompilation c, DiagnosticDescription[] expected)
+[xUnit.net 00:00:05.78]         Tests.cs(16,0): at Microsoft.CodeAnalysis.CSharp.UnitTests.LambdaTests.AnonymousMethodWithExplicitDefaultParam()
+[xUnit.net 00:00:05.78]            at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+[xUnit.net 00:00:05.78]            at System.Reflection.MethodInvoker.Invoke(Object obj, IntPtr* args, BindingFlags invokeAttr)
+[xUnit.net 00:00:06.16]   Finished:    Microsoft.CodeAnalysis.CSharp.Semantic.UnitTests

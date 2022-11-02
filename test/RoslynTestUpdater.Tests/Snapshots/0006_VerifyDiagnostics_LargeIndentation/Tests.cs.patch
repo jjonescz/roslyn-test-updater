@@ -1,0 +1,15 @@
+Index: Tests.cs
+===================================================================
+--- Tests.cs
++++ Tests.cs
+@@ -13,8 +13,8 @@
+ 
+         """;
+     var comp = CreateCompilation(source);
+     comp.VerifyDiagnostics(
+-            // (5,31): error CS9501: Parameter 1 has default value '2' in lambda and '<missing>' in the target delegate type.
++            // (5,34): error CS1065: Default values are not valid in this context.
+             //         var lam = delegate(int x = 7) { return x; };
+-            Diagnostic(ErrorCode.ERR_OptionalParamValueMismatch, "i").WithArguments("1", "7", "<missing>").WithLocation(5, 31));
++            Diagnostic(ErrorCode.ERR_DefaultValueNotAllowed, "=").WithLocation(5, 34));
+ }

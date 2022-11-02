@@ -139,8 +139,8 @@ public class Program
         }
 
         // Find current lines (printed as "Expected:" in the test output).
-        var start = -1;
-        int? positionBeforeCommentBlock = null;
+        LinePositionPair? start = null;
+        LinePositionPair? positionBeforeCommentBlock = null;
         var searchingLine = 0;
         while (searchingLine < expected.Count)
         {
@@ -156,7 +156,7 @@ public class Program
             {
                 if (searchingLine == 0)
                 {
-                    start = positionBeforeCommentBlock is int p ? p : reader.StartOfLinePosition;
+                    start = positionBeforeCommentBlock is LinePositionPair p ? p : reader.PositionPair;
                 }
                 searchingLine++;
                 continue;
@@ -165,7 +165,7 @@ public class Program
             // Ignore comments but remember their count.
             if (reader.LastLine.TrimStart().StartsWith("//", StringComparison.Ordinal))
             {
-                positionBeforeCommentBlock ??= reader.StartOfLinePosition;
+                positionBeforeCommentBlock ??= reader.PositionPair;
                 continue;
             }
 
@@ -185,7 +185,7 @@ public class Program
             logger.LogWarning($"Found unexpected line {reader.LineCount} in expected block for {source}: {reader.LastLine}");
             return null;
         }
-        if (start < 0)
+        if (start is null)
         {
             logger.LogWarning($"Cannot find start of expected block for {source}");
             return null;
@@ -211,7 +211,14 @@ public class Program
         {
             suffix = string.Empty;
         }
-        return new(start, reader.PositionBeforeLineEnd, IndentAndNormalize(reader, indent, actual) + suffix);
+
+        // Handle empty actual block.
+        if (string.IsNullOrWhiteSpace(actual))
+        {
+            return new(start.Value.PreviousOrLast.BeforeEndOfLine, reader.Position.BeforeEndOfLine, suffix);
+        }
+
+        return new(start.Value.Last.StartOfLine, reader.Position.BeforeEndOfLine, IndentAndNormalize(reader, indent, actual) + suffix);
     }
 
     static Replacement HandleEmptyExpectedBlock(LineReader reader, string actual)
@@ -221,17 +228,17 @@ public class Program
         if (closingRegex.Match(reader.LastLine.ToString()) is { } m && m.Success)
         {
             // Start just before the closing `);` if possible.
-            start = reader.StartOfLinePosition + m.Index;
+            start = reader.Position.StartOfLine + m.Index;
         }
         else
         {
             // Otherwise, start at the end of the line.
-            start = reader.PositionBeforeLineEnd;
+            start = reader.Position.BeforeEndOfLine;
         }
 
         // Indent one more than actual.
         var indent = reader.DetectIndentation() + "    ";
-        return new(start, reader.PositionBeforeLineEnd,
+        return new(start, reader.Position.BeforeEndOfLine,
            reader.LastLineEnd.ToString() +
            IndentAndNormalize(reader, indent, actual) +
            ");");
@@ -239,6 +246,10 @@ public class Program
 
     static string IndentAndNormalize(in LineReader reader, string indent, string actual)
     {
+        if (string.IsNullOrWhiteSpace(actual))
+        {
+            return string.Empty;
+        }
         return Indent(indent, actual).ReplaceLineEndings(reader.LastLineEnd.ToString());
     }
 
@@ -421,6 +432,23 @@ public class Program
     }
 }
 
+public readonly record struct LinePositionPair(LinePosition? Previous, LinePosition Last)
+{
+    public LinePosition PreviousOrLast => Previous ?? Last;
+}
+
+public readonly record struct LinePosition(int StartOfLine, int BeforeEndOfLine, int AfterEndOfLine)
+{
+    public static LinePosition Create(int index, int length, in ReadOnlySpan<char> lineEnd)
+    {
+        var afterEndOfLine = index + length;
+        return new(
+            StartOfLine: index,
+            BeforeEndOfLine: afterEndOfLine - lineEnd.Length,
+            AfterEndOfLine: afterEndOfLine);
+    }
+}
+
 public ref struct LineReader
 {
     private static readonly Regex endOfLineRegex = new(@"\r\n|[\r\n]", RegexOptions.Compiled);
@@ -431,21 +459,25 @@ public ref struct LineReader
     }
 
     public string Input { get; }
-    public int StartOfLinePosition { get; private set; }
-    public int Position { get; private set; }
-    public int PositionBeforeLineEnd => Position - LastLineEnd.Length;
+    public LinePosition? PreviousPosition { get; private set; }
+    public LinePosition Position { get; private set; }
+    public LinePositionPair PositionPair => new(PreviousPosition, Position);
     public int LineCount { get; private set; }
-    public ReadOnlySpan<char> LastLine { get; private set; } = default;
-    public ReadOnlySpan<char> LastLineEnd { get; private set; } = default;
+    // TODO: These could be computed from PositionPair.
+    public ReadOnlySpan<char> LastLine { get; private set; }
+    public ReadOnlySpan<char> LastLineEnd { get; private set; }
 
     public bool ReadLine()
     {
-        if (endOfLineRegex.Match(Input, Position) is { } m && m.Success)
+        if (endOfLineRegex.Match(Input, Position.AfterEndOfLine) is { } m && m.Success)
         {
-            LastLine = Input.AsSpan()[Position..m.Index];
+            LastLine = Input.AsSpan()[Position.AfterEndOfLine..m.Index];
             LastLineEnd = m.ValueSpan;
-            StartOfLinePosition = Position;
-            Position = m.Index + m.Length;
+            PreviousPosition = Position;
+            Position = new(
+                StartOfLine: Position.AfterEndOfLine,
+                BeforeEndOfLine: m.Index,
+                AfterEndOfLine: m.Index + m.Length);
             LineCount++;
             return true;
         }
