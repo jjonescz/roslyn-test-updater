@@ -199,7 +199,7 @@ public class Program
         {
             if (reader.LastLine[..m.Index].IsWhiteSpace())
             {
-                // The parenthesis is on a separate line.
+                // The closing parenthesis is on a separate line.
                 suffix = $"{reader.LastLineEnd}{indent}{m.ValueSpan}";
             }
             else
@@ -215,7 +215,15 @@ public class Program
         // Handle empty actual block.
         if (string.IsNullOrWhiteSpace(actual))
         {
-            return new(start.Value.PreviousOrLast.BeforeEndOfLine, reader.Position.BeforeEndOfLine, suffix);
+            var s = start.Value.PreviousOrLast.BeforeEndOfLine;
+
+            // Handle closing parenthesis on a separate line.
+            if (reader.PeekLine(out var next) && closingRegex.Match(next.LastLine.ToString()) is { } n && n.Success)
+            {
+                return new(s, next.Position.BeforeEndOfLine, n.Value);
+            }
+
+            return new(s, reader.Position.BeforeEndOfLine, suffix);
         }
 
         return new(start.Value.Last.StartOfLine, reader.Position.BeforeEndOfLine, IndentAndNormalize(reader, indent, actual) + suffix);
