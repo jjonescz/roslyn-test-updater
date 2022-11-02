@@ -31,12 +31,6 @@ public class Program
     // UTF8 with BOM
     static readonly Encoding encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: true);
 
-    static readonly string[] clues = new[]
-    {
-        "Diagnostics(",
-        "Verify(",
-    };
-
     static void Main()
     {
         var program = new Program(new PhysicalFileSystem());
