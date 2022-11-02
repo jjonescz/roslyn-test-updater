@@ -466,16 +466,32 @@ public ref struct LineReader
     public ReadOnlySpan<char> LastLine => PreviousPosition is { } prev ? Input.AsSpan()[prev.AfterEndOfLine..Position.BeforeEndOfLine] : default;
     public ReadOnlySpan<char> LastLineEnd => Input.AsSpan()[Position.BeforeEndOfLine..Position.AfterEndOfLine];
 
-    public bool ReadLine()
+    public bool PeekLine(out LineReader result)
     {
         if (endOfLineRegex.Match(Input, Position.AfterEndOfLine) is { } m && m.Success)
         {
-            PreviousPosition = Position;
-            Position = new(
-                StartOfLine: Position.AfterEndOfLine,
-                BeforeEndOfLine: m.Index,
-                AfterEndOfLine: m.Index + m.Length);
-            LineCount++;
+            result = new LineReader(Input)
+            {
+                PreviousPosition = Position,
+                Position = new(
+                    StartOfLine: Position.AfterEndOfLine,
+                    BeforeEndOfLine: m.Index,
+                    AfterEndOfLine: m.Index + m.Length),
+                LineCount = LineCount + 1
+            };
+            return true;
+        }
+        result = this;
+        return false;
+    }
+
+    public bool ReadLine()
+    {
+        if (PeekLine(out var result))
+        {
+            PreviousPosition = result.PreviousPosition;
+            Position = result.Position;
+            LineCount = result.LineCount;
             return true;
         }
         return false;
