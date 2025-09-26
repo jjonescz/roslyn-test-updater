@@ -10,7 +10,7 @@ This simple command-line tool automatically updates snapshot tests in the [Rosly
 ## Building
 
 ```ps1
-dotnet publish -c Release /p:PublishProfile=FolderProfile
+dotnet publish RoslynTestUpdater.csproj -c Release /p:PublishProfile=FolderProfile
 ```
 
 (Or use Visual Studio and hit "Publish".)
