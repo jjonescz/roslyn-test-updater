@@ -59,7 +59,13 @@ public class Program
         var classNames = new HashSet<string>();
         var testMethods = new HashSet<(string, string, string)>();
         var counter = 0;
-        foreach (var result in ParseTestOutput(input))
+        foreach (var result in ParseTestOutput(input, clear: () =>
+        {
+            blocks.Clear();
+            classNames.Clear();
+            testMethods.Clear();
+            counter = 0;
+        }))
         {
             if (!testMethods.Add((result.Source.Namespace, result.Source.ClassName, result.Source.MethodName)))
             {
@@ -267,7 +273,7 @@ public class Program
         return Indent(indent, actual).ReplaceLineEndings(reader.LastLineEnd.ToString());
     }
 
-    static IEnumerable<ParsingResult> ParseTestOutput(TextReader reader)
+    IEnumerable<ParsingResult> ParseTestOutput(TextReader reader, Action clear)
     {
         /*
 [xUnit.net 00:00:07.38]     Microsoft.CodeAnalysis.CSharp.UnitTests.RefFieldTests.AssignValueTo_InstanceMethod_RefReadonlyField [FAIL]
@@ -347,6 +353,14 @@ public class Program
             {
                 // Find first test which fails.
                 case State.Searching:
+                    const string startingTestRun = "========== Starting test run ==========";
+                    if (line.Contains(startingTestRun))
+                    {
+                        logger.LogInformation($"Found '{startingTestRun}', forgetting results so far.");
+                        clear();
+                        continue;
+                    }
+
                     if (!line.EndsWith(" [FAIL]"))
                     {
                         continue;
