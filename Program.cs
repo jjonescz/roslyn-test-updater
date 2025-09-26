@@ -31,9 +31,12 @@ public class Program
     // UTF8 with BOM
     static readonly Encoding encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: true);
 
-    static void Main()
+    static void Main(string[] args)
     {
-        var program = new Program(new PhysicalFileSystem());
+        var program = new Program(new PhysicalFileSystem())
+        {
+            WriteTestPlaylist = args.Contains("--write-playlist"),
+        };
         program.Run(Console.In);
     }
 
@@ -45,6 +48,8 @@ public class Program
         this.logger = LoggerFactory.Create(b => b.AddConsole()).CreateLogger("RoslynTestUpdater");
         this.fileSystem = fileSystem;
     }
+
+    public bool WriteTestPlaylist { get; init; } = true;
 
     public void Run(TextReader input)
     {
@@ -94,9 +99,10 @@ public class Program
         }
 
         // Write test playlist.
-        var playlistPath = fileSystem.GetFullPath("test.playlist");
-        using (var file = fileSystem.CreateText(playlistPath))
+        if (WriteTestPlaylist)
         {
+            var playlistPath = fileSystem.GetFullPath("test.playlist");
+            using var file = fileSystem.CreateText(playlistPath);
             file.WriteLine("<Playlist Version=\"2.0\"><Rule Match=\"Any\">");
             foreach (var className in classNames)
             {
