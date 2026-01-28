@@ -47,29 +47,24 @@ public class Program
             writePlaylistOption,
             inputOption,
         };
-        var parsedArgs = command.Parse(args);
-
-        // Validate args.
-        var argsParsingResult = parsedArgs.Invoke();
-        if (argsParsingResult != 0)
+        command.SetAction(parseResult =>
         {
-            return argsParsingResult;
-        }
+            var program = new Program(new PhysicalFileSystem())
+            {
+                WriteTestPlaylist = parseResult.GetValue(writePlaylistOption),
+            };
 
-        var program = new Program(new PhysicalFileSystem())
-        {
-            WriteTestPlaylist = parsedArgs.GetValue(writePlaylistOption),
-        };
+            if (parseResult.GetValue(inputOption) is string inputPath)
+            {
+                using var file = File.OpenText(inputPath);
+                program.Run(file);
+                return 0;
+            }
 
-        if (parsedArgs.GetValue(inputOption) is string inputPath)
-        {
-            using var file = File.OpenText(inputPath);
-            program.Run(file);
+            program.Run(Console.In);
             return 0;
-        }
-
-        program.Run(Console.In);
-        return 0;
+        });
+        return command.Parse(args).Invoke();
     }
 
     private readonly ILogger logger;
