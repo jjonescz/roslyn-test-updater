@@ -1,0 +1,257 @@
+========== Starting test run ==========
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.3+b1b99bdeb3 (64-bit .NET 10.0.2)
+[xUnit.net 00:00:00.17]   Starting:    Microsoft.CodeAnalysis.CSharp.CSharp15.UnitTests
+[xUnit.net 00:00:02.28]     Microsoft.CodeAnalysis.CSharp.UnitTests.Semantics.UnsafeEvolutionTests.Member_Method_Implementation [FAIL]
+[xUnit.net 00:00:02.28]       
+[xUnit.net 00:00:02.28]       Expected:
+[xUnit.net 00:00:02.28]                       Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "M1").WithArguments("C3.M1()", "I1.M1()").WithLocation(11, 24),
+[xUnit.net 00:00:02.28]                       Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "M2").WithArguments("C3.M2()", "I1.M2()").WithLocation(12, 24),
+[xUnit.net 00:00:02.28]                       Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "M1").WithArguments("C4.I1.M1()", "I1.M1()").WithLocation(17, 20),
+[xUnit.net 00:00:02.28]                       Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "M2").WithArguments("C4.I1.M2()", "I1.M2()").WithLocation(18, 20),
+[xUnit.net 00:00:02.28]                       Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "M1").WithArguments("C5.M1()", "I1.M1()").WithLocation(23, 24),
+[xUnit.net 00:00:02.28]                       Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "M1").WithArguments("C5.M1()", "I2.M1()").WithLocation(23, 24),
+[xUnit.net 00:00:02.28]                       Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "M2").WithArguments("C5.M2()", "I1.M2()").WithLocation(24, 24),
+[xUnit.net 00:00:02.28]                       Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "M2").WithArguments("C5.M2()", "I2.M2()").WithLocation(24, 24),
+[xUnit.net 00:00:02.28]                       Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "M1").WithArguments("C6.M1()", "I2.M1()").WithLocation(29, 24),
+[xUnit.net 00:00:02.28]                       Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "M1").WithArguments("C6.M1()", "I1.M1()").WithLocation(29, 24),
+[xUnit.net 00:00:02.28]                       Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "M2").WithArguments("C6.M2()", "I2.M2()").WithLocation(30, 24),
+[xUnit.net 00:00:02.28]                       Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "M2").WithArguments("C6.M2()", "I1.M2()").WithLocation(30, 24)
+[xUnit.net 00:00:02.28]       Actual:
+[xUnit.net 00:00:02.28]                       // (11,24): error CS9505: Unsafe member 'C3.M1()' implicitly implements safe member 'I1.M1()'
+[xUnit.net 00:00:02.28]                       //     public unsafe void M1() { }
+[xUnit.net 00:00:02.28]                       Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "M1").WithArguments("C3.M1()", "I1.M1()").WithLocation(11, 24),
+[xUnit.net 00:00:02.28]                       // (12,24): error CS9505: Unsafe member 'C3.M2()' implicitly implements safe member 'I1.M2()'
+[xUnit.net 00:00:02.28]                       //     public unsafe void M2() { }
+[xUnit.net 00:00:02.28]                       Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "M2").WithArguments("C3.M2()", "I1.M2()").WithLocation(12, 24),
+[xUnit.net 00:00:02.28]                       // (17,20): error CS9506: Unsafe member 'C4.I1.M1()' implements safe member 'I1.M1()'
+[xUnit.net 00:00:02.28]                       //     unsafe void I1.M1() { }
+[xUnit.net 00:00:02.28]                       Diagnostic(ErrorCode.ERR_CallerUnsafeExplicitlyImplementingSafe, "M1").WithArguments("C4.I1.M1()", "I1.M1()").WithLocation(17, 20),
+[xUnit.net 00:00:02.28]                       // (18,20): error CS9506: Unsafe member 'C4.I1.M2()' implements safe member 'I1.M2()'
+[xUnit.net 00:00:02.28]                       //     unsafe void I1.M2() { }
+[xUnit.net 00:00:02.28]                       Diagnostic(ErrorCode.ERR_CallerUnsafeExplicitlyImplementingSafe, "M2").WithArguments("C4.I1.M2()", "I1.M2()").WithLocation(18, 20),
+[xUnit.net 00:00:02.28]                       // (23,24): error CS9505: Unsafe member 'C5.M1()' implicitly implements safe member 'I1.M1()'
+[xUnit.net 00:00:02.28]                       //     public unsafe void M1() { }
+[xUnit.net 00:00:02.28]                       Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "M1").WithArguments("C5.M1()", "I1.M1()").WithLocation(23, 24),
+[xUnit.net 00:00:02.28]                       // (23,24): error CS9505: Unsafe member 'C5.M1()' implicitly implements safe member 'I2.M1()'
+[xUnit.net 00:00:02.28]                       //     public unsafe void M1() { }
+[xUnit.net 00:00:02.28]                       Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "M1").WithArguments("C5.M1()", "I2.M1()").WithLocation(23, 24),
+[xUnit.net 00:00:02.28]                       // (24,24): error CS9505: Unsafe member 'C5.M2()' implicitly implements safe member 'I1.M2()'
+[xUnit.net 00:00:02.28]                       //     public unsafe void M2() { }
+[xUnit.net 00:00:02.28]                       Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "M2").WithArguments("C5.M2()", "I1.M2()").WithLocation(24, 24),
+[xUnit.net 00:00:02.28]                       // (24,24): error CS9505: Unsafe member 'C5.M2()' implicitly implements safe member 'I2.M2()'
+[xUnit.net 00:00:02.28]                       //     public unsafe void M2() { }
+[xUnit.net 00:00:02.28]                       Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "M2").WithArguments("C5.M2()", "I2.M2()").WithLocation(24, 24),
+[xUnit.net 00:00:02.28]                       // (29,24): error CS9505: Unsafe member 'C6.M1()' implicitly implements safe member 'I2.M1()'
+[xUnit.net 00:00:02.28]                       //     public unsafe void M1() { }
+[xUnit.net 00:00:02.28]                       Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "M1").WithArguments("C6.M1()", "I2.M1()").WithLocation(29, 24),
+[xUnit.net 00:00:02.28]                       // (29,24): error CS9505: Unsafe member 'C6.M1()' implicitly implements safe member 'I1.M1()'
+[xUnit.net 00:00:02.28]                       //     public unsafe void M1() { }
+[xUnit.net 00:00:02.28]                       Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "M1").WithArguments("C6.M1()", "I1.M1()").WithLocation(29, 24),
+[xUnit.net 00:00:02.28]                       // (30,24): error CS9505: Unsafe member 'C6.M2()' implicitly implements safe member 'I2.M2()'
+[xUnit.net 00:00:02.28]                       //     public unsafe void M2() { }
+[xUnit.net 00:00:02.28]                       Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "M2").WithArguments("C6.M2()", "I2.M2()").WithLocation(30, 24),
+[xUnit.net 00:00:02.28]                       // (30,24): error CS9505: Unsafe member 'C6.M2()' implicitly implements safe member 'I1.M2()'
+[xUnit.net 00:00:02.28]                       //     public unsafe void M2() { }
+[xUnit.net 00:00:02.28]                       Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "M2").WithArguments("C6.M2()", "I1.M2()").WithLocation(30, 24)
+[xUnit.net 00:00:02.28]       Diff:
+[xUnit.net 00:00:02.28]       ++>                 Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "M1").WithArguments("C3.M1()", "I1.M1()").WithLocation(11, 24)
+[xUnit.net 00:00:02.28]       ++>                 Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "M2").WithArguments("C3.M2()", "I1.M2()").WithLocation(12, 24)
+[xUnit.net 00:00:02.28]       ++>                 Diagnostic(ErrorCode.ERR_CallerUnsafeExplicitlyImplementingSafe, "M1").WithArguments("C4.I1.M1()", "I1.M1()").WithLocation(17, 20)
+[xUnit.net 00:00:02.28]       ++>                 Diagnostic(ErrorCode.ERR_CallerUnsafeExplicitlyImplementingSafe, "M2").WithArguments("C4.I1.M2()", "I1.M2()").WithLocation(18, 20)
+[xUnit.net 00:00:02.28]       ++>                 Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "M1").WithArguments("C5.M1()", "I1.M1()").WithLocation(23, 24)
+[xUnit.net 00:00:02.28]       ++>                 Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "M1").WithArguments("C5.M1()", "I2.M1()").WithLocation(23, 24)
+[xUnit.net 00:00:02.28]       ++>                 Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "M2").WithArguments("C5.M2()", "I1.M2()").WithLocation(24, 24)
+[xUnit.net 00:00:02.28]       ++>                 Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "M2").WithArguments("C5.M2()", "I2.M2()").WithLocation(24, 24)
+[xUnit.net 00:00:02.28]       ++>                 Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "M1").WithArguments("C6.M1()", "I2.M1()").WithLocation(29, 24)
+[xUnit.net 00:00:02.28]       ++>                 Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "M1").WithArguments("C6.M1()", "I1.M1()").WithLocation(29, 24)
+[xUnit.net 00:00:02.28]       ++>                 Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "M2").WithArguments("C6.M2()", "I2.M2()").WithLocation(30, 24)
+[xUnit.net 00:00:02.28]       ++>                 Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "M2").WithArguments("C6.M2()", "I1.M2()").WithLocation(30, 24)
+[xUnit.net 00:00:02.28]       -->                 Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "M1").WithArguments("C3.M1()", "I1.M1()").WithLocation(11, 24)
+[xUnit.net 00:00:02.28]       -->                 Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "M2").WithArguments("C3.M2()", "I1.M2()").WithLocation(12, 24)
+[xUnit.net 00:00:02.28]       -->                 Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "M1").WithArguments("C4.I1.M1()", "I1.M1()").WithLocation(17, 20)
+[xUnit.net 00:00:02.28]       -->                 Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "M2").WithArguments("C4.I1.M2()", "I1.M2()").WithLocation(18, 20)
+[xUnit.net 00:00:02.28]       -->                 Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "M1").WithArguments("C5.M1()", "I1.M1()").WithLocation(23, 24)
+[xUnit.net 00:00:02.28]       -->                 Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "M1").WithArguments("C5.M1()", "I2.M1()").WithLocation(23, 24)
+[xUnit.net 00:00:02.28]       -->                 Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "M2").WithArguments("C5.M2()", "I1.M2()").WithLocation(24, 24)
+[xUnit.net 00:00:02.28]       -->                 Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "M2").WithArguments("C5.M2()", "I2.M2()").WithLocation(24, 24)
+[xUnit.net 00:00:02.28]       -->                 Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "M1").WithArguments("C6.M1()", "I2.M1()").WithLocation(29, 24)
+[xUnit.net 00:00:02.28]       -->                 Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "M1").WithArguments("C6.M1()", "I1.M1()").WithLocation(29, 24)
+[xUnit.net 00:00:02.28]       -->                 Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "M2").WithArguments("C6.M2()", "I2.M2()").WithLocation(30, 24)
+[xUnit.net 00:00:02.28]       -->                 Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "M2").WithArguments("C6.M2()", "I1.M2()").WithLocation(30, 24)
+[xUnit.net 00:00:02.28]       Stack Trace:
+[xUnit.net 00:00:02.28]         D:\roslyn-5\src\Compilers\Test\Core\Diagnostics\DiagnosticExtensions.cs(99,0): at Microsoft.CodeAnalysis.DiagnosticExtensions.Verify(IEnumerable`1 actual, DiagnosticDescription[] expected, Boolean errorCodeOnly)
+[xUnit.net 00:00:02.28]         D:\roslyn-5\src\Compilers\Test\Core\Diagnostics\DiagnosticExtensions.cs(48,0): at Microsoft.CodeAnalysis.DiagnosticExtensions.Verify(IEnumerable`1 actual, DiagnosticDescription[] expected)
+[xUnit.net 00:00:02.29]         D:\roslyn-5\src\Compilers\Test\Core\Diagnostics\DiagnosticExtensions.cs(63,0): at Microsoft.CodeAnalysis.DiagnosticExtensions.Verify(ImmutableArray`1 actual, DiagnosticDescription[] expected)
+[xUnit.net 00:00:02.29]         D:\roslyn-5\src\Compilers\Test\Core\Diagnostics\DiagnosticExtensions.cs(356,0): at Microsoft.CodeAnalysis.DiagnosticExtensions.VerifyEmitDiagnostics[TCompilation](TCompilation c, EmitOptions options, DiagnosticDescription[] expected)
+[xUnit.net 00:00:02.29]         D:\roslyn-5\src\Compilers\Test\Core\Diagnostics\DiagnosticExtensions.cs(373,0): at Microsoft.CodeAnalysis.DiagnosticExtensions.VerifyEmitDiagnostics[TCompilation](TCompilation c, DiagnosticDescription[] expected)
+[xUnit.net 00:00:02.29]         D:\roslyn-5\src\Compilers\CSharp\Test\CSharp15\UnsafeEvolutionTests.cs(96,0): at Microsoft.CodeAnalysis.CSharp.UnitTests.Semantics.UnsafeEvolutionTests.CompileAndVerifyUnsafe(String lib, String caller, Object[] expectedUnsafeSymbols, Object[] expectedSafeSymbols, DiagnosticDescription[] expectedDiagnostics, ReadOnlySpan`1 additionalSources, Verification verify, CallerUnsafeMode expectedUnsafeMode, CSharpParseOptions parseOptions, CSharpCompilationOptions optionsDll, TargetFramework targetFramework, DiagnosticDescription[] expectedDiagnosticsWhenReferencingLegacyLib, DiagnosticDescription[] expectedDiagnosticsForLegacyCaller)
+[xUnit.net 00:00:02.29]         D:\roslyn-5\src\Compilers\CSharp\Test\CSharp15\UnsafeEvolutionTests.cs(3339,0): at Microsoft.CodeAnalysis.CSharp.UnitTests.Semantics.UnsafeEvolutionTests.Member_Method_Implementation()
+[xUnit.net 00:00:02.29]            at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+[xUnit.net 00:00:02.29]            at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:02.45]     Microsoft.CodeAnalysis.CSharp.UnitTests.Semantics.UnsafeEvolutionTests.Member_Event_Implementation [FAIL]
+[xUnit.net 00:00:02.45]       
+[xUnit.net 00:00:02.45]       Expected:
+[xUnit.net 00:00:02.45]                       Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "E2").WithArguments("C1.E2", "I.E2").WithLocation(10, 39),
+[xUnit.net 00:00:02.45]                       Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "E2").WithArguments("C2.E2", "I.E2").WithLocation(16, 39),
+[xUnit.net 00:00:02.45]                       Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "E1").WithArguments("C3.E1", "I.E1").WithLocation(21, 39),
+[xUnit.net 00:00:02.45]                       Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "E1").WithArguments("C4.E1", "I.E1").WithLocation(27, 39)
+[xUnit.net 00:00:02.45]       Actual:
+[xUnit.net 00:00:02.45]                       // (10,39): error CS9505: Unsafe member 'C1.E2' implicitly implements safe member 'I.E2'
+[xUnit.net 00:00:02.45]                       //     public unsafe event System.Action E2;
+[xUnit.net 00:00:02.45]                       Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "E2").WithArguments("C1.E2", "I.E2").WithLocation(10, 39),
+[xUnit.net 00:00:02.45]                       // (16,39): error CS9505: Unsafe member 'C2.E2' implicitly implements safe member 'I.E2'
+[xUnit.net 00:00:02.45]                       //     public unsafe event System.Action E2 { add { } remove { } }
+[xUnit.net 00:00:02.45]                       Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "E2").WithArguments("C2.E2", "I.E2").WithLocation(16, 39),
+[xUnit.net 00:00:02.45]                       // (21,39): error CS9505: Unsafe member 'C3.E1' implicitly implements safe member 'I.E1'
+[xUnit.net 00:00:02.45]                       //     public unsafe event System.Action E1;
+[xUnit.net 00:00:02.45]                       Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "E1").WithArguments("C3.E1", "I.E1").WithLocation(21, 39),
+[xUnit.net 00:00:02.45]                       // (27,39): error CS9505: Unsafe member 'C4.E1' implicitly implements safe member 'I.E1'
+[xUnit.net 00:00:02.45]                       //     public unsafe event System.Action E1 { add { } remove { } }
+[xUnit.net 00:00:02.45]                       Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "E1").WithArguments("C4.E1", "I.E1").WithLocation(27, 39)
+[xUnit.net 00:00:02.45]       Diff:
+[xUnit.net 00:00:02.45]       ++>                 Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "E2").WithArguments("C1.E2", "I.E2").WithLocation(10, 39)
+[xUnit.net 00:00:02.45]       ++>                 Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "E2").WithArguments("C2.E2", "I.E2").WithLocation(16, 39)
+[xUnit.net 00:00:02.45]       ++>                 Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "E1").WithArguments("C3.E1", "I.E1").WithLocation(21, 39)
+[xUnit.net 00:00:02.45]       ++>                 Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "E1").WithArguments("C4.E1", "I.E1").WithLocation(27, 39)
+[xUnit.net 00:00:02.45]       -->                 Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "E2").WithArguments("C1.E2", "I.E2").WithLocation(10, 39)
+[xUnit.net 00:00:02.45]       -->                 Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "E2").WithArguments("C2.E2", "I.E2").WithLocation(16, 39)
+[xUnit.net 00:00:02.45]       -->                 Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "E1").WithArguments("C3.E1", "I.E1").WithLocation(21, 39)
+[xUnit.net 00:00:02.45]       -->                 Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "E1").WithArguments("C4.E1", "I.E1").WithLocation(27, 39)
+[xUnit.net 00:00:02.45]       Stack Trace:
+[xUnit.net 00:00:02.45]         D:\roslyn-5\src\Compilers\Test\Core\Diagnostics\DiagnosticExtensions.cs(99,0): at Microsoft.CodeAnalysis.DiagnosticExtensions.Verify(IEnumerable`1 actual, DiagnosticDescription[] expected, Boolean errorCodeOnly)
+[xUnit.net 00:00:02.45]         D:\roslyn-5\src\Compilers\Test\Core\Diagnostics\DiagnosticExtensions.cs(48,0): at Microsoft.CodeAnalysis.DiagnosticExtensions.Verify(IEnumerable`1 actual, DiagnosticDescription[] expected)
+[xUnit.net 00:00:02.45]         D:\roslyn-5\src\Compilers\Test\Core\Diagnostics\DiagnosticExtensions.cs(63,0): at Microsoft.CodeAnalysis.DiagnosticExtensions.Verify(ImmutableArray`1 actual, DiagnosticDescription[] expected)
+[xUnit.net 00:00:02.45]         D:\roslyn-5\src\Compilers\Test\Core\Diagnostics\DiagnosticExtensions.cs(356,0): at Microsoft.CodeAnalysis.DiagnosticExtensions.VerifyEmitDiagnostics[TCompilation](TCompilation c, EmitOptions options, DiagnosticDescription[] expected)
+[xUnit.net 00:00:02.45]         D:\roslyn-5\src\Compilers\Test\Core\Diagnostics\DiagnosticExtensions.cs(373,0): at Microsoft.CodeAnalysis.DiagnosticExtensions.VerifyEmitDiagnostics[TCompilation](TCompilation c, DiagnosticDescription[] expected)
+[xUnit.net 00:00:02.45]         D:\roslyn-5\src\Compilers\CSharp\Test\CSharp15\UnsafeEvolutionTests.cs(96,0): at Microsoft.CodeAnalysis.CSharp.UnitTests.Semantics.UnsafeEvolutionTests.CompileAndVerifyUnsafe(String lib, String caller, Object[] expectedUnsafeSymbols, Object[] expectedSafeSymbols, DiagnosticDescription[] expectedDiagnostics, ReadOnlySpan`1 additionalSources, Verification verify, CallerUnsafeMode expectedUnsafeMode, CSharpParseOptions parseOptions, CSharpCompilationOptions optionsDll, TargetFramework targetFramework, DiagnosticDescription[] expectedDiagnosticsWhenReferencingLegacyLib, DiagnosticDescription[] expectedDiagnosticsForLegacyCaller)
+[xUnit.net 00:00:02.45]         D:\roslyn-5\src\Compilers\CSharp\Test\CSharp15\UnsafeEvolutionTests.cs(5406,0): at Microsoft.CodeAnalysis.CSharp.UnitTests.Semantics.UnsafeEvolutionTests.Member_Event_Implementation()
+[xUnit.net 00:00:02.45]            at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+[xUnit.net 00:00:02.45]            at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:02.64]     Microsoft.CodeAnalysis.CSharp.UnitTests.Semantics.UnsafeEvolutionTests.Member_Property_Implementation [FAIL]
+[xUnit.net 00:00:02.64]       
+[xUnit.net 00:00:02.64]       Expected:
+[xUnit.net 00:00:02.64]                       Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "get").WithArguments("C1.P2.get", "I.P2.get").WithLocation(9, 28),
+[xUnit.net 00:00:02.64]                       Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "set").WithArguments("C1.P2.set", "I.P2.set").WithLocation(9, 33),
+[xUnit.net 00:00:02.64]                       Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "get").WithArguments("C1.P3.get", "I.P3.get").WithLocation(10, 28),
+[xUnit.net 00:00:02.64]                       Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "get").WithArguments("C2.P1.get", "I.P1.get").WithLocation(15, 28),
+[xUnit.net 00:00:02.64]                       Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "set").WithArguments("C2.P1.set", "I.P1.set").WithLocation(15, 33),
+[xUnit.net 00:00:02.64]                       Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "get").WithArguments("C2.P2.get", "I.P2.get").WithLocation(16, 28),
+[xUnit.net 00:00:02.64]                       Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "get").WithArguments("C2.P3.get", "I.P3.get").WithLocation(17, 28),
+[xUnit.net 00:00:02.64]                       Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "set").WithArguments("C2.P3.set", "I.P3.set").WithLocation(17, 33)
+[xUnit.net 00:00:02.64]       Actual:
+[xUnit.net 00:00:02.64]                       // (9,28): error CS9505: Unsafe member 'C1.P2.get' implicitly implements safe member 'I.P2.get'
+[xUnit.net 00:00:02.64]                       //     public unsafe int P2 { get; set; }
+[xUnit.net 00:00:02.64]                       Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "get").WithArguments("C1.P2.get", "I.P2.get").WithLocation(9, 28),
+[xUnit.net 00:00:02.64]                       // (9,33): error CS9505: Unsafe member 'C1.P2.set' implicitly implements safe member 'I.P2.set'
+[xUnit.net 00:00:02.64]                       //     public unsafe int P2 { get; set; }
+[xUnit.net 00:00:02.64]                       Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "set").WithArguments("C1.P2.set", "I.P2.set").WithLocation(9, 33),
+[xUnit.net 00:00:02.64]                       // (10,28): error CS9505: Unsafe member 'C1.P3.get' implicitly implements safe member 'I.P3.get'
+[xUnit.net 00:00:02.64]                       //     public int P3 { unsafe get; set; }
+[xUnit.net 00:00:02.64]                       Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "get").WithArguments("C1.P3.get", "I.P3.get").WithLocation(10, 28),
+[xUnit.net 00:00:02.64]                       // (15,28): error CS9505: Unsafe member 'C2.P1.get' implicitly implements safe member 'I.P1.get'
+[xUnit.net 00:00:02.64]                       //     public unsafe int P1 { get; set; }
+[xUnit.net 00:00:02.64]                       Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "get").WithArguments("C2.P1.get", "I.P1.get").WithLocation(15, 28),
+[xUnit.net 00:00:02.64]                       // (15,33): error CS9505: Unsafe member 'C2.P1.set' implicitly implements safe member 'I.P1.set'
+[xUnit.net 00:00:02.64]                       //     public unsafe int P1 { get; set; }
+[xUnit.net 00:00:02.64]                       Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "set").WithArguments("C2.P1.set", "I.P1.set").WithLocation(15, 33),
+[xUnit.net 00:00:02.64]                       // (16,28): error CS9505: Unsafe member 'C2.P2.get' implicitly implements safe member 'I.P2.get'
+[xUnit.net 00:00:02.64]                       //     public int P2 { unsafe get; set; }
+[xUnit.net 00:00:02.64]                       Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "get").WithArguments("C2.P2.get", "I.P2.get").WithLocation(16, 28),
+[xUnit.net 00:00:02.64]                       // (17,28): error CS9505: Unsafe member 'C2.P3.get' implicitly implements safe member 'I.P3.get'
+[xUnit.net 00:00:02.64]                       //     public unsafe int P3 { get; set; }
+[xUnit.net 00:00:02.64]                       Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "get").WithArguments("C2.P3.get", "I.P3.get").WithLocation(17, 28),
+[xUnit.net 00:00:02.64]                       // (17,33): error CS9505: Unsafe member 'C2.P3.set' implicitly implements safe member 'I.P3.set'
+[xUnit.net 00:00:02.64]                       //     public unsafe int P3 { get; set; }
+[xUnit.net 00:00:02.64]                       Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "set").WithArguments("C2.P3.set", "I.P3.set").WithLocation(17, 33)
+[xUnit.net 00:00:02.64]       Diff:
+[xUnit.net 00:00:02.64]       ++>                 Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "get").WithArguments("C1.P2.get", "I.P2.get").WithLocation(9, 28)
+[xUnit.net 00:00:02.64]       ++>                 Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "set").WithArguments("C1.P2.set", "I.P2.set").WithLocation(9, 33)
+[xUnit.net 00:00:02.64]       ++>                 Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "get").WithArguments("C1.P3.get", "I.P3.get").WithLocation(10, 28)
+[xUnit.net 00:00:02.64]       ++>                 Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "get").WithArguments("C2.P1.get", "I.P1.get").WithLocation(15, 28)
+[xUnit.net 00:00:02.64]       ++>                 Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "set").WithArguments("C2.P1.set", "I.P1.set").WithLocation(15, 33)
+[xUnit.net 00:00:02.64]       ++>                 Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "get").WithArguments("C2.P2.get", "I.P2.get").WithLocation(16, 28)
+[xUnit.net 00:00:02.64]       ++>                 Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "get").WithArguments("C2.P3.get", "I.P3.get").WithLocation(17, 28)
+[xUnit.net 00:00:02.64]       ++>                 Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "set").WithArguments("C2.P3.set", "I.P3.set").WithLocation(17, 33)
+[xUnit.net 00:00:02.64]       -->                 Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "get").WithArguments("C1.P2.get", "I.P2.get").WithLocation(9, 28)
+[xUnit.net 00:00:02.64]       -->                 Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "set").WithArguments("C1.P2.set", "I.P2.set").WithLocation(9, 33)
+[xUnit.net 00:00:02.64]       -->                 Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "get").WithArguments("C1.P3.get", "I.P3.get").WithLocation(10, 28)
+[xUnit.net 00:00:02.64]       -->                 Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "get").WithArguments("C2.P1.get", "I.P1.get").WithLocation(15, 28)
+[xUnit.net 00:00:02.64]       -->                 Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "set").WithArguments("C2.P1.set", "I.P1.set").WithLocation(15, 33)
+[xUnit.net 00:00:02.64]       -->                 Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "get").WithArguments("C2.P2.get", "I.P2.get").WithLocation(16, 28)
+[xUnit.net 00:00:02.64]       -->                 Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "get").WithArguments("C2.P3.get", "I.P3.get").WithLocation(17, 28)
+[xUnit.net 00:00:02.64]       -->                 Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "set").WithArguments("C2.P3.set", "I.P3.set").WithLocation(17, 33)
+[xUnit.net 00:00:02.64]       Stack Trace:
+[xUnit.net 00:00:02.64]         D:\roslyn-5\src\Compilers\Test\Core\Diagnostics\DiagnosticExtensions.cs(99,0): at Microsoft.CodeAnalysis.DiagnosticExtensions.Verify(IEnumerable`1 actual, DiagnosticDescription[] expected, Boolean errorCodeOnly)
+[xUnit.net 00:00:02.64]         D:\roslyn-5\src\Compilers\Test\Core\Diagnostics\DiagnosticExtensions.cs(48,0): at Microsoft.CodeAnalysis.DiagnosticExtensions.Verify(IEnumerable`1 actual, DiagnosticDescription[] expected)
+[xUnit.net 00:00:02.64]         D:\roslyn-5\src\Compilers\Test\Core\Diagnostics\DiagnosticExtensions.cs(63,0): at Microsoft.CodeAnalysis.DiagnosticExtensions.Verify(ImmutableArray`1 actual, DiagnosticDescription[] expected)
+[xUnit.net 00:00:02.64]         D:\roslyn-5\src\Compilers\Test\Core\Diagnostics\DiagnosticExtensions.cs(356,0): at Microsoft.CodeAnalysis.DiagnosticExtensions.VerifyEmitDiagnostics[TCompilation](TCompilation c, EmitOptions options, DiagnosticDescription[] expected)
+[xUnit.net 00:00:02.64]         D:\roslyn-5\src\Compilers\Test\Core\Diagnostics\DiagnosticExtensions.cs(373,0): at Microsoft.CodeAnalysis.DiagnosticExtensions.VerifyEmitDiagnostics[TCompilation](TCompilation c, DiagnosticDescription[] expected)
+[xUnit.net 00:00:02.65]         D:\roslyn-5\src\Compilers\CSharp\Test\CSharp15\UnsafeEvolutionTests.cs(96,0): at Microsoft.CodeAnalysis.CSharp.UnitTests.Semantics.UnsafeEvolutionTests.CompileAndVerifyUnsafe(String lib, String caller, Object[] expectedUnsafeSymbols, Object[] expectedSafeSymbols, DiagnosticDescription[] expectedDiagnostics, ReadOnlySpan`1 additionalSources, Verification verify, CallerUnsafeMode expectedUnsafeMode, CSharpParseOptions parseOptions, CSharpCompilationOptions optionsDll, TargetFramework targetFramework, DiagnosticDescription[] expectedDiagnosticsWhenReferencingLegacyLib, DiagnosticDescription[] expectedDiagnosticsForLegacyCaller)
+[xUnit.net 00:00:02.65]         D:\roslyn-5\src\Compilers\CSharp\Test\CSharp15\UnsafeEvolutionTests.cs(4939,0): at Microsoft.CodeAnalysis.CSharp.UnitTests.Semantics.UnsafeEvolutionTests.Member_Property_Implementation()
+[xUnit.net 00:00:02.65]            at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+[xUnit.net 00:00:02.65]            at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:02.79]     Microsoft.CodeAnalysis.CSharp.UnitTests.Semantics.UnsafeEvolutionTests.Extern_Method_Implementation [FAIL]
+[xUnit.net 00:00:02.79]       
+[xUnit.net 00:00:02.79]       Expected:
+[xUnit.net 00:00:02.79]                       Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "M1").WithArguments("C3.M1()", "I.M1()").WithLocation(20, 24),
+[xUnit.net 00:00:02.79]                       Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "M2").WithArguments("C3.M2()", "I.M2()").WithLocation(21, 24),
+[xUnit.net 00:00:02.79]                       Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "M1").WithArguments("C4.I.M1()", "I.M1()").WithLocation(26, 19),
+[xUnit.net 00:00:02.79]                       Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "M2").WithArguments("C4.I.M2()", "I.M2()").WithLocation(27, 19),
+[xUnit.net 00:00:02.79]                       Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "M1").WithArguments("C5.M1()", "I.M1()").WithLocation(32, 24),
+[xUnit.net 00:00:02.79]                       Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "M2").WithArguments("C5.M2()", "I.M2()").WithLocation(33, 24),
+[xUnit.net 00:00:02.79]                       Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "M1").WithArguments("C6.I.M1()", "I.M1()").WithLocation(38, 19),
+[xUnit.net 00:00:02.79]                       Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "M2").WithArguments("C6.I.M2()", "I.M2()").WithLocation(39, 19)
+[xUnit.net 00:00:02.79]       Actual:
+[xUnit.net 00:00:02.79]                       // (20,24): error CS9505: Unsafe member 'C3.M1()' implicitly implements safe member 'I.M1()'
+[xUnit.net 00:00:02.79]                       //     public unsafe void M1() { }
+[xUnit.net 00:00:02.79]                       Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "M1").WithArguments("C3.M1()", "I.M1()").WithLocation(20, 24),
+[xUnit.net 00:00:02.79]                       // (21,24): error CS9505: Unsafe member 'C3.M2()' implicitly implements safe member 'I.M2()'
+[xUnit.net 00:00:02.79]                       //     public unsafe void M2() { }
+[xUnit.net 00:00:02.79]                       Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "M2").WithArguments("C3.M2()", "I.M2()").WithLocation(21, 24),
+[xUnit.net 00:00:02.79]                       // (26,19): error CS9506: Unsafe member 'C4.I.M1()' implements safe member 'I.M1()'
+[xUnit.net 00:00:02.79]                       //     unsafe void I.M1() { }
+[xUnit.net 00:00:02.79]                       Diagnostic(ErrorCode.ERR_CallerUnsafeExplicitlyImplementingSafe, "M1").WithArguments("C4.I.M1()", "I.M1()").WithLocation(26, 19),
+[xUnit.net 00:00:02.79]                       // (27,19): error CS9506: Unsafe member 'C4.I.M2()' implements safe member 'I.M2()'
+[xUnit.net 00:00:02.79]                       //     unsafe void I.M2() { }
+[xUnit.net 00:00:02.79]                       Diagnostic(ErrorCode.ERR_CallerUnsafeExplicitlyImplementingSafe, "M2").WithArguments("C4.I.M2()", "I.M2()").WithLocation(27, 19),
+[xUnit.net 00:00:02.79]                       // (32,24): error CS9505: Unsafe member 'C5.M1()' implicitly implements safe member 'I.M1()'
+[xUnit.net 00:00:02.79]                       //     public extern void M1();
+[xUnit.net 00:00:02.79]                       Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "M1").WithArguments("C5.M1()", "I.M1()").WithLocation(32, 24),
+[xUnit.net 00:00:02.79]                       // (33,24): error CS9505: Unsafe member 'C5.M2()' implicitly implements safe member 'I.M2()'
+[xUnit.net 00:00:02.79]                       //     public extern void M2();
+[xUnit.net 00:00:02.79]                       Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "M2").WithArguments("C5.M2()", "I.M2()").WithLocation(33, 24),
+[xUnit.net 00:00:02.79]                       // (38,19): error CS9506: Unsafe member 'C6.I.M1()' implements safe member 'I.M1()'
+[xUnit.net 00:00:02.79]                       //     extern void I.M1();
+[xUnit.net 00:00:02.79]                       Diagnostic(ErrorCode.ERR_CallerUnsafeExplicitlyImplementingSafe, "M1").WithArguments("C6.I.M1()", "I.M1()").WithLocation(38, 19),
+[xUnit.net 00:00:02.79]                       // (39,19): error CS9506: Unsafe member 'C6.I.M2()' implements safe member 'I.M2()'
+[xUnit.net 00:00:02.79]                       //     extern void I.M2();
+[xUnit.net 00:00:02.79]                       Diagnostic(ErrorCode.ERR_CallerUnsafeExplicitlyImplementingSafe, "M2").WithArguments("C6.I.M2()", "I.M2()").WithLocation(39, 19)
+[xUnit.net 00:00:02.79]       Diff:
+[xUnit.net 00:00:02.79]       ++>                 Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "M1").WithArguments("C3.M1()", "I.M1()").WithLocation(20, 24)
+[xUnit.net 00:00:02.79]       ++>                 Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "M2").WithArguments("C3.M2()", "I.M2()").WithLocation(21, 24)
+[xUnit.net 00:00:02.79]       ++>                 Diagnostic(ErrorCode.ERR_CallerUnsafeExplicitlyImplementingSafe, "M1").WithArguments("C4.I.M1()", "I.M1()").WithLocation(26, 19)
+[xUnit.net 00:00:02.79]       ++>                 Diagnostic(ErrorCode.ERR_CallerUnsafeExplicitlyImplementingSafe, "M2").WithArguments("C4.I.M2()", "I.M2()").WithLocation(27, 19)
+[xUnit.net 00:00:02.79]       ++>                 Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "M1").WithArguments("C5.M1()", "I.M1()").WithLocation(32, 24)
+[xUnit.net 00:00:02.79]       ++>                 Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "M2").WithArguments("C5.M2()", "I.M2()").WithLocation(33, 24)
+[xUnit.net 00:00:02.79]       ++>                 Diagnostic(ErrorCode.ERR_CallerUnsafeExplicitlyImplementingSafe, "M1").WithArguments("C6.I.M1()", "I.M1()").WithLocation(38, 19)
+[xUnit.net 00:00:02.79]       ++>                 Diagnostic(ErrorCode.ERR_CallerUnsafeExplicitlyImplementingSafe, "M2").WithArguments("C6.I.M2()", "I.M2()").WithLocation(39, 19)
+[xUnit.net 00:00:02.79]       -->                 Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "M1").WithArguments("C3.M1()", "I.M1()").WithLocation(20, 24)
+[xUnit.net 00:00:02.79]       -->                 Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "M2").WithArguments("C3.M2()", "I.M2()").WithLocation(21, 24)
+[xUnit.net 00:00:02.79]       -->                 Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "M1").WithArguments("C4.I.M1()", "I.M1()").WithLocation(26, 19)
+[xUnit.net 00:00:02.79]       -->                 Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "M2").WithArguments("C4.I.M2()", "I.M2()").WithLocation(27, 19)
+[xUnit.net 00:00:02.79]       -->                 Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "M1").WithArguments("C5.M1()", "I.M1()").WithLocation(32, 24)
+[xUnit.net 00:00:02.79]       -->                 Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "M2").WithArguments("C5.M2()", "I.M2()").WithLocation(33, 24)
+[xUnit.net 00:00:02.79]       -->                 Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "M1").WithArguments("C6.I.M1()", "I.M1()").WithLocation(38, 19)
+[xUnit.net 00:00:02.80]       -->                 Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "M2").WithArguments("C6.I.M2()", "I.M2()").WithLocation(39, 19)
+[xUnit.net 00:00:02.80]       Stack Trace:
+[xUnit.net 00:00:02.80]         D:\roslyn-5\src\Compilers\Test\Core\Diagnostics\DiagnosticExtensions.cs(99,0): at Microsoft.CodeAnalysis.DiagnosticExtensions.Verify(IEnumerable`1 actual, DiagnosticDescription[] expected, Boolean errorCodeOnly)
+[xUnit.net 00:00:02.80]         D:\roslyn-5\src\Compilers\Test\Core\Diagnostics\DiagnosticExtensions.cs(48,0): at Microsoft.CodeAnalysis.DiagnosticExtensions.Verify(IEnumerable`1 actual, DiagnosticDescription[] expected)
+[xUnit.net 00:00:02.80]         D:\roslyn-5\src\Compilers\Test\Core\Diagnostics\DiagnosticExtensions.cs(63,0): at Microsoft.CodeAnalysis.DiagnosticExtensions.Verify(ImmutableArray`1 actual, DiagnosticDescription[] expected)
+[xUnit.net 00:00:02.80]         D:\roslyn-5\src\Compilers\Test\Core\Diagnostics\DiagnosticExtensions.cs(356,0): at Microsoft.CodeAnalysis.DiagnosticExtensions.VerifyEmitDiagnostics[TCompilation](TCompilation c, EmitOptions options, DiagnosticDescription[] expected)
+[xUnit.net 00:00:02.80]         D:\roslyn-5\src\Compilers\Test\Core\Diagnostics\DiagnosticExtensions.cs(373,0): at Microsoft.CodeAnalysis.DiagnosticExtensions.VerifyEmitDiagnostics[TCompilation](TCompilation c, DiagnosticDescription[] expected)
+[xUnit.net 00:00:02.80]         D:\roslyn-5\src\Compilers\CSharp\Test\CSharp15\UnsafeEvolutionTests.cs(96,0): at Microsoft.CodeAnalysis.CSharp.UnitTests.Semantics.UnsafeEvolutionTests.CompileAndVerifyUnsafe(String lib, String caller, Object[] expectedUnsafeSymbols, Object[] expectedSafeSymbols, DiagnosticDescription[] expectedDiagnostics, ReadOnlySpan`1 additionalSources, Verification verify, CallerUnsafeMode expectedUnsafeMode, CSharpParseOptions parseOptions, CSharpCompilationOptions optionsDll, TargetFramework targetFramework, DiagnosticDescription[] expectedDiagnosticsWhenReferencingLegacyLib, DiagnosticDescription[] expectedDiagnosticsForLegacyCaller)
+[xUnit.net 00:00:02.80]         D:\roslyn-5\src\Compilers\CSharp\Test\CSharp15\UnsafeEvolutionTests.cs(7504,0): at Microsoft.CodeAnalysis.CSharp.UnitTests.Semantics.UnsafeEvolutionTests.Extern_Method_Implementation()
+[xUnit.net 00:00:02.80]            at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+[xUnit.net 00:00:02.80]            at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:02.80]   Finished:    Microsoft.CodeAnalysis.CSharp.CSharp15.UnitTests
+========== Test run finished: 10 Tests (6 Passed, 4 Failed, 0 Skipped) run in 2.8 sec ==========
