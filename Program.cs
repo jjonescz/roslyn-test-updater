@@ -98,10 +98,10 @@ public class Program
         {
             if (!testMethods.Add((result.Source.Namespace, result.Source.ClassName, result.Source.MethodName)))
             {
-                Console.WriteLine($"Skipped duplicate test: {++counter} ({result.Source})");
+                logger.LogWarning($"Skipped duplicate test: {++counter} ({result.Source})");
                 continue;
             }
-            Console.WriteLine($"Found test output: {++counter}");
+            logger.LogInformation($"Found test output: {++counter}");
             if (FindExpectedBlock(cache, result) is { } replacement)
             {
                 if (!blocks.TryGetValue(result.Source.Path, out var list))
@@ -117,7 +117,7 @@ public class Program
         // Construct new file contents.
         foreach (var (file, replacements) in blocks)
         {
-            Console.Write($"Replacing {file}... ");
+            logger.LogInformation($"Replacing {file}");
             var contents = cache[file];
 
             replacements.Sort((x, y) => x.Start.CompareTo(y.Start));
@@ -130,7 +130,7 @@ public class Program
             }
 
             fileSystem.WriteAllText(file, contents, encoding);
-            Console.WriteLine("Done.");
+            logger.LogDebug($"Done replacing {file}");
         }
 
         // Write test playlist.
@@ -144,7 +144,7 @@ public class Program
                 file.WriteLine($"<Property Name=\"Class\" Value=\"{className}\" />");
             }
             file.WriteLine("</Rule></Playlist>");
-            Console.WriteLine($"Wrote {playlistPath}");
+            logger.LogInformation($"Wrote {playlistPath}");
         }
     }
 
@@ -155,10 +155,10 @@ public class Program
         // Get and cache file contents.
         if (!cache.TryGetValue(source.Path, out var contents))
         {
-            Console.Write($"Reading {source.Path}... ");
+            logger.LogInformation($"Reading {source.Path}");
             contents = fileSystem.ReadAllText(source.Path);
             cache.Add(source.Path, contents);
-            Console.WriteLine("Done.");
+            logger.LogDebug($"Done reading {source.Path}");
         }
 
         var reader = new LineReader(contents);
