@@ -75,6 +75,11 @@ public class TestFileSystem : IFileSystem
     public string SnapshotsRootPath { get; }
     public IReadOnlySet<string> TouchedFiles => touchedFiles;
 
+    /// <summary>
+    /// It can be useful to set this to <see langword="false"/> for some test debugging scenarios.
+    /// </summary>
+    public bool WritePatches { get; init; } = true;
+
     private string TranslatePath(string path, bool canUseRoot, bool touch = true)
     {
         var translatedPath = TranslatePathCore(path: path, canUseRoot: canUseRoot);
@@ -111,11 +116,18 @@ public class TestFileSystem : IFileSystem
 
     public void WriteAllText(string path, string? contents, Encoding encoding)
     {
-        var original = ReadAllText(path);
-        var patch = new Patch().create(Path.GetFileName(path), original, contents);
-        var target = $"{TranslatePath(path, canUseRoot: false, touch: false)}.patch";
-        touchedFiles.Add(target);
-        File.WriteAllText(target, patch);
+        if (WritePatches)
+        {
+            var original = ReadAllText(path);
+            var patch = new Patch().create(Path.GetFileName(path), original, contents);
+            var target = $"{TranslatePath(path, canUseRoot: false, touch: false)}.patch";
+            touchedFiles.Add(target);
+            File.WriteAllText(target, patch);
+        }
+        else
+        {
+            File.WriteAllText(TranslatePath(path, canUseRoot: false), contents, encoding);
+        }
     }
 }
 
