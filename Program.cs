@@ -213,6 +213,7 @@ public class Program
             // Ignore anything when searching for the first line.
             if (searchingLine == 0)
             {
+                positionBeforeCommentBlock = null;
                 continue;
             }
 
