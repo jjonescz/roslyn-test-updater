@@ -232,6 +232,8 @@ public class Program
             return null;
         }
 
+        logger.LogInformation($"Found expected block for {source} at line {start.Value.PreviousOrLast.LineNumber}");
+
         var indent = reader.DetectIndentation();
 
         // Append `);` (repeat the parenthesis as it was on the input).
