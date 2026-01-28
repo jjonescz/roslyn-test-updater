@@ -15,7 +15,7 @@ dotnet publish src/RoslynTestUpdater/RoslynTestUpdater.csproj -c Release /p:Publ
 
 (Or use Visual Studio and hit "Publish".)
 
-Then add the resulting folder to `PATH` (or copy the `.exe`, it's self-contained).
+Then add the resulting folder to `PATH` (or copy/symlink the `.exe`, it's self-contained).
 
 ## Usage
 
