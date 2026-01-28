@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.CommandLine;
+using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -183,7 +184,7 @@ public partial class Program
         }
 
         // Find current lines (printed as "Expected:" in the test output).
-        LinePositionPair? start = null;
+        (LinePositionPair Start, int End)? range = null;
         LinePositionPair? positionBeforeCommentBlock = null;
         var searchingLine = 0;
         while (searchingLine < expected.Count)
@@ -194,20 +195,30 @@ public partial class Program
                 return null;
             }
 
+            var unindentedLastLine = reader.LastLine.TrimStart();
+            var indentationLength = reader.LastLine.Length - unindentedLastLine.Length;
+
             // Have we found the next expected code line?
             var needle = expected[searchingLine];
-            if (reader.LastLine.TrimStart().StartsWith(needle, StringComparison.Ordinal))
+            if (unindentedLastLine.StartsWith(needle, StringComparison.Ordinal))
             {
-                if (searchingLine == 0)
+                var end = (reader.PreviousPosition?.AfterEndOfLine ?? 0) + indentationLength + needle.Length;
+                if (range is { } er)
                 {
-                    start = positionBeforeCommentBlock is LinePositionPair p ? p : reader.PositionPair;
+                    range = er with { End = end };
+                }
+                else
+                {
+                    Debug.Assert(searchingLine == 0);
+                    var start = positionBeforeCommentBlock is LinePositionPair p ? p : reader.PositionPair;
+                    range = (start, end);
                 }
                 searchingLine++;
                 continue;
             }
 
             // Ignore comments but remember their count.
-            if (reader.LastLine.TrimStart().StartsWith("//", StringComparison.Ordinal))
+            if (unindentedLastLine.StartsWith("//", StringComparison.Ordinal))
             {
                 positionBeforeCommentBlock ??= reader.PositionPair;
                 continue;
@@ -230,39 +241,21 @@ public partial class Program
             logger.LogWarning($"Found unexpected line {reader.LineCount} in expected block for {source}: {reader.LastLine}");
             return null;
         }
-        if (start is null)
+
+        if (range is not { } r)
         {
             logger.LogWarning($"Cannot find start of expected block for {source}");
             return null;
         }
 
-        logger.LogInformation($"Found expected block for {source} at line {start.Value.PreviousOrLast.LineNumber}");
+        logger.LogInformation($"Found expected block for {source} at line {range.Value.Start.PreviousOrLast.LineNumber}");
 
         var indent = reader.DetectIndentation();
-
-        // Append `);` (repeat the parenthesis as it was on the input).
-        string suffix;
-        if (ClosingRegex.Match(reader.LastLine.ToString()) is { Success: true } m)
-        {
-            if (reader.LastLine[..m.Index].IsWhiteSpace())
-            {
-                // The closing parenthesis is on a separate line.
-                suffix = $"{reader.LastLineEnd}{indent}{m.ValueSpan}";
-            }
-            else
-            {
-                suffix = m.Value[1..];
-            }
-        }
-        else
-        {
-            suffix = string.Empty;
-        }
 
         // Handle empty actual block.
         if (string.IsNullOrWhiteSpace(actual))
         {
-            var s = start.Value.PreviousOrLast.BeforeEndOfLine;
+            var s = r.Start.PreviousOrLast.BeforeEndOfLine;
 
             // Handle closing parenthesis on a separate line.
             if (reader.PeekLine(out var next) && ClosingRegex.Match(next.LastLine.ToString()) is { Success: true } n)
@@ -270,10 +263,10 @@ public partial class Program
                 return new(s, next.Position.BeforeEndOfLine, n.Value);
             }
 
-            return new(s, reader.Position.BeforeEndOfLine, suffix);
+            return new(s, r.End, string.Empty);
         }
 
-        return new(start.Value.Last.StartOfLine, reader.Position.BeforeEndOfLine, IndentAndNormalize(reader, indent, actual) + suffix);
+        return new(r.Start.Last.StartOfLine, r.End, IndentAndNormalize(reader, indent, actual));
     }
 
     static Replacement HandleEmptyExpectedBlock(LineReader reader, string actual)

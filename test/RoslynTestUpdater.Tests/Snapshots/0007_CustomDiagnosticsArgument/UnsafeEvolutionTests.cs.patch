@@ -66,7 +66,7 @@ Index: UnsafeEvolutionTests.cs
 +                // (30,24): error CS9505: Unsafe member 'C6.M2()' implicitly implements safe member 'I1.M2()'
                  //     public unsafe void M2() { }
 -                Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "M2").WithArguments("C6.M2()", "I1.M2()").WithLocation(30, 24),
-+                Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "M2").WithArguments("C6.M2()", "I1.M2()").WithLocation(30, 24)
++                Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "M2").WithArguments("C6.M2()", "I1.M2()").WithLocation(30, 24),
              ]);
      }
  
@@ -115,7 +115,7 @@ Index: UnsafeEvolutionTests.cs
 +                // (17,33): error CS9505: Unsafe member 'C2.P3.set' implicitly implements safe member 'I.P3.set'
                  //     public unsafe int P3 { get; set; }
 -                Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "set").WithArguments("C2.P3.set", "I.P3.set").WithLocation(17, 33),
-+                Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "set").WithArguments("C2.P3.set", "I.P3.set").WithLocation(17, 33)
++                Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "set").WithArguments("C2.P3.set", "I.P3.set").WithLocation(17, 33),
              ]);
      }
  
@@ -144,7 +144,7 @@ Index: UnsafeEvolutionTests.cs
 +                // (27,39): error CS9505: Unsafe member 'C4.E1' implicitly implements safe member 'I.E1'
                  //     public unsafe event System.Action E1 { add { } remove { } }
 -                Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "E1").WithArguments("C4.E1", "I.E1").WithLocation(27, 39),
-+                Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "E1").WithArguments("C4.E1", "I.E1").WithLocation(27, 39)
++                Diagnostic(ErrorCode.ERR_CallerUnsafeImplicitlyImplementingSafe, "E1").WithArguments("C4.E1", "I.E1").WithLocation(27, 39),
              ]);
      }
  
@@ -193,7 +193,7 @@ Index: UnsafeEvolutionTests.cs
 +                // (39,19): error CS9506: Unsafe member 'C6.I.M2()' implements safe member 'I.M2()'
                  //     extern void I.M2();
 -                Diagnostic(ErrorCode.ERR_CallerUnsafeOverridingSafe, "M2").WithArguments("C6.I.M2()", "I.M2()").WithLocation(39, 19),
-+                Diagnostic(ErrorCode.ERR_CallerUnsafeExplicitlyImplementingSafe, "M2").WithArguments("C6.I.M2()", "I.M2()").WithLocation(39, 19)
++                Diagnostic(ErrorCode.ERR_CallerUnsafeExplicitlyImplementingSafe, "M2").WithArguments("C6.I.M2()", "I.M2()").WithLocation(39, 19),
              ]);
      }
  
