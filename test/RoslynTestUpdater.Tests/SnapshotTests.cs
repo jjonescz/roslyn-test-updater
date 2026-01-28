@@ -1,4 +1,5 @@
 using CSharpDiff.Patches;
+using Microsoft.Extensions.Logging;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Xunit.Abstractions;
@@ -26,7 +27,7 @@ public sealed class SnapshotTests : IDisposable
     {
         var snapshotDirPath = Path.Join(GetTestsDirPath(), snapshotDirName);
         var fileSystem = new TestFileSystem(snapshotDirPath);
-        var program = new Program(fileSystem);
+        var program = new Program(fileSystem, LogLevel.Debug);
         using (var testOutput = new StreamReader(Path.Join(snapshotDirPath, TestOutputFileName)))
         {
             program.Run(testOutput);

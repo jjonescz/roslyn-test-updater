@@ -73,9 +73,9 @@ public partial class Program
     private readonly ILogger logger;
     private readonly IFileSystem fileSystem;
 
-    public Program(IFileSystem fileSystem)
+    public Program(IFileSystem fileSystem, LogLevel logLevel = LogLevel.Information)
     {
-        this.logger = LoggerFactory.Create(b => b.AddConsole()).CreateLogger("RoslynTestUpdater");
+        this.logger = LoggerFactory.Create(b => b.AddConsole().SetMinimumLevel(logLevel)).CreateLogger("RoslynTestUpdater");
         this.fileSystem = fileSystem;
     }
 
@@ -105,6 +105,7 @@ public partial class Program
             logger.LogInformation($"Found test output: {++counter}");
             if (FindExpectedBlock(cache, result) is { } replacement)
             {
+                logger.LogDebug($"Replacing {replacement.Start}..{replacement.End}");
                 if (!blocks.TryGetValue(result.Source.Path, out var list))
                 {
                     list = new(1);
