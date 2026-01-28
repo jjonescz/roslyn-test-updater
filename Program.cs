@@ -237,7 +237,7 @@ public class Program
 
         // Append `);` (repeat the parenthesis as it was on the input).
         string suffix;
-        if (closingRegex.Match(reader.LastLine.ToString()) is { } m && m.Success)
+        if (closingRegex.Match(reader.LastLine.ToString()) is { Success: true } m)
         {
             if (reader.LastLine[..m.Index].IsWhiteSpace())
             {
@@ -260,7 +260,7 @@ public class Program
             var s = start.Value.PreviousOrLast.BeforeEndOfLine;
 
             // Handle closing parenthesis on a separate line.
-            if (reader.PeekLine(out var next) && closingRegex.Match(next.LastLine.ToString()) is { } n && n.Success)
+            if (reader.PeekLine(out var next) && closingRegex.Match(next.LastLine.ToString()) is { Success: true } n)
             {
                 return new(s, next.Position.BeforeEndOfLine, n.Value);
             }
@@ -275,7 +275,7 @@ public class Program
     {
         reader.ReadLine();
         int start;
-        if (closingRegex.Match(reader.LastLine.ToString()) is { } m && m.Success)
+        if (closingRegex.Match(reader.LastLine.ToString()) is { Success: true } m)
         {
             // Start just before the closing `);` if possible.
             start = reader.Position.StartOfLine + m.Index;
@@ -538,7 +538,7 @@ public ref struct LineReader
 
     public bool PeekLine(out LineReader result)
     {
-        if (endOfLineRegex.Match(Input, Position.AfterEndOfLine) is { } m && m.Success)
+        if (endOfLineRegex.Match(Input, Position.AfterEndOfLine) is { Success: true } m)
         {
             result = new LineReader(Input)
             {
