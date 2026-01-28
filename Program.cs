@@ -34,7 +34,10 @@ public class Program
 
     static int Main(string[] args)
     {
-        var writePlaylistOption = new Option<bool>("--write-playlist");
+        var writePlaylistOption = new Option<bool>("--write-playlist")
+        {
+            Description = "Write 'test.playlist' into the current directory with a list of failed tests (in Visual Studio Test Explorer format).",
+        };
         var inputOption = new Option<string>("--input")
         {
             Description = "Path to the input file. If not specified, standard input is used.",
