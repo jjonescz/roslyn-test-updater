@@ -25,7 +25,7 @@ The tool automatically patches testing code to match reality.
 > **Warning**
 > It is recommended to have your Git working directory clean, so you can see the changes made by the tool, and if some are incorrect, you can simply undo them.
 
-Furthermore, the tool writes `test.playlist` into the current directory with a list of failed tests (in Visual Studio Test Explorer format).
+If the `--write-playlist` option is specified on the command-line, the tool writes `test.playlist` into the current directory with a list of failed tests (in Visual Studio Test Explorer format).
 
 ### From command line
 
