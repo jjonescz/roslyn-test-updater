@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using System.CommandLine;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -31,13 +32,41 @@ public class Program
     // UTF8 with BOM
     static readonly Encoding encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: true);
 
-    static void Main(string[] args)
+    static int Main(string[] args)
     {
+        var writePlaylistOption = new Option<bool>("--write-playlist");
+        var inputOption = new Option<string>("--input")
+        {
+            Description = "Path to the input file. If not specified, standard input is used.",
+        };
+        var command = new RootCommand(nameof(RoslynTestUpdater))
+        {
+            writePlaylistOption,
+            inputOption,
+        };
+        var parsedArgs = command.Parse(args);
+
+        // Validate args.
+        var argsParsingResult = parsedArgs.Invoke();
+        if (argsParsingResult != 0)
+        {
+            return argsParsingResult;
+        }
+
         var program = new Program(new PhysicalFileSystem())
         {
-            WriteTestPlaylist = args.Contains("--write-playlist"),
+            WriteTestPlaylist = parsedArgs.GetValue(writePlaylistOption),
         };
+
+        if (parsedArgs.GetValue(inputOption) is string inputPath)
+        {
+            using var file = File.OpenText(inputPath);
+            program.Run(file);
+            return 0;
+        }
+
         program.Run(Console.In);
+        return 0;
     }
 
     private readonly ILogger logger;
