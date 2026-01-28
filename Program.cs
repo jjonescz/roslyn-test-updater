@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace RoslynTestUpdater;
 
-public class Program
+public partial class Program
 {
     enum State
     {
@@ -23,11 +23,14 @@ public class Program
 
     readonly record struct Replacement(int Start, int End, string Target);
 
-    static readonly Regex stackTraceEntryRegex = new(@"\((\d+),(\d+)\): at ((\w+\.)*)(\w+)\.(\w+)", RegexOptions.Compiled);
+    [GeneratedRegex(@"\((\d+),(\d+)\): at ((\w+\.)*)(\w+)\.(\w+)")]
+    static partial Regex StackTraceEntryRegex { get; }
 
-    static readonly Regex startRegex = new("^(?!$)", RegexOptions.Compiled | RegexOptions.Multiline);
+    [GeneratedRegex("^(?!$)", RegexOptions.Multiline)]
+    static partial Regex StartRegex { get; }
 
-    static readonly Regex closingRegex = new(@"\)*;$", RegexOptions.Compiled);
+    [GeneratedRegex(@"\)*;$")]
+    static partial Regex ClosingRegex { get; }
 
     // UTF8 with BOM
     static readonly Encoding encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: true);
@@ -237,7 +240,7 @@ public class Program
 
         // Append `);` (repeat the parenthesis as it was on the input).
         string suffix;
-        if (closingRegex.Match(reader.LastLine.ToString()) is { Success: true } m)
+        if (ClosingRegex.Match(reader.LastLine.ToString()) is { Success: true } m)
         {
             if (reader.LastLine[..m.Index].IsWhiteSpace())
             {
@@ -260,7 +263,7 @@ public class Program
             var s = start.Value.PreviousOrLast.BeforeEndOfLine;
 
             // Handle closing parenthesis on a separate line.
-            if (reader.PeekLine(out var next) && closingRegex.Match(next.LastLine.ToString()) is { Success: true } n)
+            if (reader.PeekLine(out var next) && ClosingRegex.Match(next.LastLine.ToString()) is { Success: true } n)
             {
                 return new(s, next.Position.BeforeEndOfLine, n.Value);
             }
@@ -275,7 +278,7 @@ public class Program
     {
         reader.ReadLine();
         int start;
-        if (closingRegex.Match(reader.LastLine.ToString()) is { Success: true } m)
+        if (ClosingRegex.Match(reader.LastLine.ToString()) is { Success: true } m)
         {
             // Start just before the closing `);` if possible.
             start = reader.Position.StartOfLine + m.Index;
@@ -440,7 +443,7 @@ public class Program
 
                 // Parse stack trace. When not possible, stack trace ended.
                 case State.FoundStackTrace:
-                    var match = stackTraceEntryRegex.Match(line);
+                    var match = StackTraceEntryRegex.Match(line);
                     if (match.Success)
                     {
                         // Parse the stack trace line.
@@ -486,7 +489,7 @@ public class Program
 
     static string Indent(string indent, string block)
     {
-        return startRegex.Replace(block, indent);
+        return StartRegex.Replace(block, indent);
     }
 }
 
