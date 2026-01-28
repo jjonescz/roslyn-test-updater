@@ -1,16 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-	  <LangVersion>preview</LangVersion>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Remove="Snapshots\**\*.cs" />
-	<None Include="Snapshots\**\*.cs" />
+    <None Include="Snapshots\**\*.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -28,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\RoslynTestUpdater.csproj" />
+    <ProjectReference Include="..\..\src\RoslynTestUpdater\RoslynTestUpdater.csproj" />
   </ItemGroup>
 
 </Project>
