@@ -496,15 +496,21 @@ public readonly record struct LinePositionPair(LinePosition? Previous, LinePosit
 
 public readonly record struct LinePosition
 {
+    /// <summary>
+    /// Starts at 1. Currently only used for debugging.
+    /// </summary>
+    public required int LineNumber { get; init; }
+
     public required int StartOfLine { get; init; }
     public required int BeforeEndOfLine { get; init; }
     public required int AfterEndOfLine { get; init; }
 
-    public static LinePosition Create(int index, int length, in ReadOnlySpan<char> lineEnd)
+    public static LinePosition Create(int lineNumber, int index, int length, in ReadOnlySpan<char> lineEnd)
     {
         var afterEndOfLine = index + length;
         return new()
         {
+            LineNumber = lineNumber,
             StartOfLine = index,
             BeforeEndOfLine = afterEndOfLine - lineEnd.Length,
             AfterEndOfLine = afterEndOfLine,
@@ -538,6 +544,7 @@ public ref struct LineReader
                 PreviousPosition = Position,
                 Position = new()
                 {
+                    LineNumber = LineCount + 1,
                     StartOfLine = Position.AfterEndOfLine,
                     BeforeEndOfLine = m.Index,
                     AfterEndOfLine = m.Index + m.Length,
