@@ -201,7 +201,7 @@ Index: OverloadResolutionTests.cs
          }
  
          [Fact]
-@@ -1470,26 +1470,26 @@
+@@ -1470,17 +1470,17 @@
              CreateCompilation(source, parseOptions: TestOptions.WithoutImprovedOverloadCandidates).VerifyDiagnostics(
                  // (67,36): error CS0453: The type 'Y' must be a non-nullable value type in order to use it as parameter 'T' in the generic type or method 'C.N<T>'
                  //     static void Test5<Y>(Y y, N<Y> ny) { }
@@ -225,16 +225,6 @@ Index: OverloadResolutionTests.cs
                  //         Test5(s, null);
                  Diagnostic(ErrorCode.ERR_ValConstraintNotSatisfied, "Test5").WithArguments("C.N<T>", "T", "string").WithLocation(47, 9),
                  // (58,17): error CS0453: The type 'string' must be a non-nullable value type in order to use it as parameter 'S' in the generic type or method 'C.L<S>'
-                 //         Test6<L<string>>(null);
-                 Diagnostic(ErrorCode.ERR_ValConstraintNotSatisfied, "string").WithArguments("C.L<S>", "S", "string").WithLocation(58, 17),
-                 // (58,9): error CS0453: The type 'string' must be a non-nullable value type in order to use it as parameter 'S' in the generic type or method 'C.L<S>'
-                 //         Test6<L<string>>(null);
--                Diagnostic(ErrorCode.ERR_ValConstraintNotSatisfied, "Test6<L<string>>").WithArguments("C.L<S>", "S", "string").WithLocation(58, 9));
-+                Diagnostic(ErrorCode.ERR_ValConstraintNotSatisfied, "Test6<L<string>>").WithArguments("C.L<S>", "S", "string").WithLocation(58, 9));
- 
-             CreateCompilation(source).VerifyDiagnostics(
-                 // (67,36): error CS0453: The type 'Y' must be a non-nullable value type in order to use it as parameter 'T' in the generic type or method 'C.N<T>'
-                 //     static void Test5<Y>(Y y, N<Y> ny) { }
 @@ -1524,11 +1524,11 @@
      }
      static void Goo<T>(params T[] x) { }
@@ -1774,17 +1764,6 @@ Index: OverloadResolutionTests.cs
      //         M11(x: 1, y: 2, z: 3);
      Diagnostic(ErrorCode.ERR_BadNamedArgument, "z").WithArguments("M11", "z").WithLocation(29, 25),
      // (31,9): error CS1501: No overload for method 'M12' takes 4 arguments
-@@ -8905,9 +8914,9 @@
-     //         M18(1, x: 2, y: 3);
-     Diagnostic(ErrorCode.ERR_NamedArgumentUsedInPositional, "y").WithArguments("y").WithLocation(40, 22),
-     // (41,16): error CS1744: Named argument 'x' specifies a parameter for which a positional argument has already been given
-     //         M19(1, x: 2, y: 3);
--    Diagnostic(ErrorCode.ERR_NamedArgumentUsedInPositional, "x").WithArguments("x").WithLocation(41, 16)
-+    Diagnostic(ErrorCode.ERR_NamedArgumentUsedInPositional, "x").WithArguments("x").WithLocation(41, 16)
-                 );
-         }
- 
-         [Fact, WorkItem(2631, "https://github.com/dotnet/roslyn/issues/2631")]
 @@ -8973,11 +8982,11 @@
  
              var compilation = CreateCompilationWithMscorlib45(source1);
@@ -2020,7 +1999,7 @@ Index: OverloadResolutionTests.cs
  
          [Fact]
          public void PassingInArgumentsOverloadedOnIn_ConflictingParameters_Error_BinaryOperators()
-@@ -10389,17 +10398,17 @@
+@@ -10389,11 +10398,11 @@
      }
  }";
  
@@ -2034,14 +2013,7 @@ Index: OverloadResolutionTests.cs
                      //         Method(valP: out 2);
                      Diagnostic(ErrorCode.ERR_RefLvalueExpected, "2").WithLocation(20, 26),
                      // (21,25): error CS8156: An expression cannot be used in this context because it may not be passed or returned by reference
-                     //         Method(valP: in 2);
--                    Diagnostic(ErrorCode.ERR_RefReturnLvalueExpected, "2").WithLocation(21, 25)
-+                    Diagnostic(ErrorCode.ERR_RefReturnLvalueExpected, "2").WithLocation(21, 25)
-                 );
-         }
- 
-         [Fact]
-@@ -10486,17 +10495,17 @@
+@@ -10486,11 +10495,11 @@
      }
  }";
  
@@ -2055,13 +2027,6 @@ Index: OverloadResolutionTests.cs
                  //         _ = p[valP: out 2];
                  Diagnostic(ErrorCode.ERR_RefLvalueExpected, "2").WithLocation(30, 25),
                  // (31,23): error CS8156: An expression cannot be used in this context because it may not be passed or returned by reference
-                 //         _ = p[inP: in 2];
--                Diagnostic(ErrorCode.ERR_RefReturnLvalueExpected, "2").WithLocation(31, 23));
-+                Diagnostic(ErrorCode.ERR_RefReturnLvalueExpected, "2").WithLocation(31, 23));
-         }
- 
-         [Fact]
-         public void PassingInArgumentsOverloadedOnInOptionalParameters()
 @@ -10793,11 +10802,11 @@
      {
          M(null);
@@ -2143,17 +2108,6 @@ Index: OverloadResolutionTests.cs
                  //         Method((rl, rl));
                  Diagnostic(ErrorCode.ERR_BadTypeArgument, "rl").WithArguments("Program.RefLike").WithLocation(19, 17),
                  // (19,21): error CS0306: The type 'Program.RefLike' may not be used as a type argument
-@@ -10997,9 +11006,9 @@
-                 //         Method(in (rl, rl));
-                 Diagnostic(ErrorCode.ERR_RefReturnLvalueExpected, "(rl, rl)").WithLocation(20, 19),
-                 // (22,19): error CS8156: An expression cannot be used in this context because it may not be passed or returned by reference
-                 //         Method(in (y, x));  
--                Diagnostic(ErrorCode.ERR_RefReturnLvalueExpected, "(y, x)").WithLocation(22, 19));
-+                Diagnostic(ErrorCode.ERR_RefReturnLvalueExpected, "(y, x)").WithLocation(22, 19));
-         }
- 
-         [Fact]
-         public void GenericInferenceErrorRecovery()
 @@ -11019,11 +11028,11 @@
  }
  ";
@@ -2182,7 +2136,7 @@ Index: OverloadResolutionTests.cs
          }
  
          [Fact]
-@@ -11096,14 +11105,14 @@
+@@ -11096,11 +11105,11 @@
  ";
  
  
@@ -2194,12 +2148,8 @@ Index: OverloadResolutionTests.cs
 +                Diagnostic(ErrorCode.ERR_RefReadonlyNotField, "y").WithArguments("variable", "in int y").WithLocation(13, 10),
                  // (14,10): error CS1510: A ref or out value must be an assignable variable
                  //          1.R_extension(); // error 2
--                Diagnostic(ErrorCode.ERR_RefLvalueExpected, "1").WithLocation(14, 10)
-+                Diagnostic(ErrorCode.ERR_RefLvalueExpected, "1").WithLocation(14, 10)
+                 Diagnostic(ErrorCode.ERR_RefLvalueExpected, "1").WithLocation(14, 10)
                  );
- 
-             CreateCompilation(code, references: new[] { libComp.ToMetadataReference() }).VerifyDiagnostics(
-                 // (13,10): error CS8329: Cannot use variable 'in int' as a ref or out value because it is a readonly variable
 @@ -11229,11 +11238,11 @@
  ";
  

@@ -21,6 +21,7 @@ public partial class Program
 
     readonly record struct ParsingResult(IReadOnlyList<string> Expected, string Actual, FileAndLocation Source);
 
+    /// <param name="End">Inclusive.</param>
     readonly record struct Replacement(int Start, int End, string Target);
 
     [GeneratedRegex(@"\((\d+),(\d+)\): at ((\w+\.)*)(\w+)\.(\w+)")]
@@ -127,8 +128,8 @@ public partial class Program
             var delta = 0;
             foreach (var (start, end, replacement) in replacements)
             {
-                contents = contents[..(start + delta)] + replacement + contents[(end + delta + 1)..];
-                delta += replacement.Length - (end + 1 - start);
+                contents = contents[..(start + delta)] + replacement + contents[(end + delta)..];
+                delta += replacement.Length - (end - start);
             }
 
             fileSystem.WriteAllText(file, contents, encoding);
