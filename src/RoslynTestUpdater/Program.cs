@@ -180,7 +180,7 @@ public partial class Program
         // Handle `verifier.VerifyDiagnostics();` (empty expected lines).
         if (expected.Count == 0)
         {
-            return HandleEmptyExpectedBlock(reader, actual);
+            return HandleEmptyExpectedBlock(reader, actual, source);
         }
 
         // Find current lines (printed as "Expected:" in the test output).
@@ -269,19 +269,24 @@ public partial class Program
         return new(r.Start.Last.StartOfLine, r.End, IndentAndNormalize(reader, indent, actual));
     }
 
-    static Replacement HandleEmptyExpectedBlock(LineReader reader, string actual)
+    Replacement? HandleEmptyExpectedBlock(LineReader reader, string actual, FileAndLocation source)
     {
-        reader.ReadLine();
         int start;
-        if (ClosingRegex.Match(reader.LastLine.ToString()) is { Success: true } m)
+
+        while (true)
         {
-            // Start just before the closing `);` if possible.
-            start = reader.Position.StartOfLine + m.Index;
-        }
-        else
-        {
-            // Otherwise, start at the end of the line.
-            start = reader.Position.BeforeEndOfLine;
+            if (!reader.ReadLine())
+            {
+                logger.LogWarning($"Cannot find start of empty expected block for {source}");
+                return null;
+            }
+
+            if (ClosingRegex.Match(reader.LastLine.ToString()) is { Success: true } m)
+            {
+                // Start just before the closing `);`.
+                start = reader.Position.StartOfLine + m.Index;
+                break;
+            }
         }
 
         // Indent one more than actual.
