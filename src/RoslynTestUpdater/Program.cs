@@ -271,6 +271,7 @@ public partial class Program
 
     Replacement? HandleEmptyExpectedBlock(LineReader reader, string actual, FileAndLocation source)
     {
+        string? indentation = null;
         int start;
 
         while (true)
@@ -281,6 +282,8 @@ public partial class Program
                 return null;
             }
 
+            indentation ??= reader.DetectIndentation();
+
             if (ClosingRegex.Match(reader.LastLine.ToString()) is { Success: true } m)
             {
                 // Start just before the closing `);`.
@@ -290,7 +293,7 @@ public partial class Program
         }
 
         // Indent one more than actual.
-        var indent = reader.DetectIndentation() + "    ";
+        var indent = indentation + "    ";
         return new(start, reader.Position.BeforeEndOfLine,
            reader.LastLineEnd.ToString() +
            IndentAndNormalize(reader, indent, actual) +
