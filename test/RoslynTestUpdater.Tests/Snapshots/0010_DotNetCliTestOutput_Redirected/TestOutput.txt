@@ -1,0 +1,47 @@
+
+Test run for D:\roslyn-2\artifacts\bin\Microsoft.CodeAnalysis.CSharp.CSharp15.UnitTests\Debug\net10.0\Microsoft.CodeAnalysis.CSharp.CSharp15.UnitTests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+  Failed Microsoft.CodeAnalysis.CSharp.UnitTests.Semantics.UnsafeEvolutionTests.Member_Accessors_ConflictingUnsafeSafeModifiers [1 s]
+  Error Message:
+   
+Expected:
+                Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "P2").WithArguments("C.P2").WithLocation(4, 16),
+                Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "P3").WithArguments("C.P3").WithLocation(5, 14),
+                Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "P4").WithArguments("C.P4").WithLocation(6, 14),
+                Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "P5").WithArguments("C.P5").WithLocation(7, 16),
+                Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "P6").WithArguments("C.P6").WithLocation(8, 14),
+                Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "P7").WithArguments("C.P7").WithLocation(9, 16)
+Actual:
+                // (3,16): error CS9396: Cannot specify 'unsafe' or 'safe' modifiers on both property or indexer 'C.P1' and its accessor. Remove one of them.
+                //     unsafe int P1 { unsafe get => 0; set { } }
+                Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "P1").WithArguments("C.P1").WithLocation(3, 16),
+                // (4,16): error CS9396: Cannot specify 'unsafe' or 'safe' modifiers on both property or indexer 'C.P2' and its accessor. Remove one of them.
+                //     unsafe int P2 { get => 0; unsafe set { } }
+                Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "P2").WithArguments("C.P2").WithLocation(4, 16),
+                // (5,14): error CS9396: Cannot specify 'unsafe' or 'safe' modifiers on both property or indexer 'C.P3' and its accessor. Remove one of them.
+                //     safe int P3 { safe get => 0; set { } }
+                Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "P3").WithArguments("C.P3").WithLocation(5, 14),
+                // (6,14): error CS9396: Cannot specify 'unsafe' or 'safe' modifiers on both property or indexer 'C.P4' and its accessor. Remove one of them.
+                //     safe int P4 { get => 0; safe set { } }
+                Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "P4").WithArguments("C.P4").WithLocation(6, 14),
+                // (7,16): error CS9396: Cannot specify 'unsafe' or 'safe' modifiers on both property or indexer 'C.P5' and its accessor. Remove one of them.
+                //     unsafe int P5 { safe get => 0; set { } }
+                Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "P5").WithArguments("C.P5").WithLocation(7, 16),
+                // (8,14): error CS9396: Cannot specify 'unsafe' or 'safe' modifiers on both property or indexer 'C.P6' and its accessor. Remove one of them.
+                //     safe int P6 { unsafe get => 0; set { } }  
+                Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "P6").WithArguments("C.P6").WithLocation(8, 14),
+                // (9,16): error CS9396: Cannot specify 'unsafe' or 'safe' modifiers on both property or indexer 'C.P7' and its accessor. Remove one of them.
+                //     unsafe int P7 { safe get => 0; unsafe set { } }
+                Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "P7").WithArguments("C.P7").WithLocation(9, 16)
+Diff:
+++>                 Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "P1").WithArguments("C.P1").WithLocation(3, 16)
+  Stack Trace:
+     at Microsoft.CodeAnalysis.DiagnosticExtensions.Verify(IEnumerable`1 actual, DiagnosticDescription[] expected, Boolean errorCodeOnly) in /_/src/Compilers/Test/Core/Diagnostics/DiagnosticExtensions.cs:line 100
+   at Microsoft.CodeAnalysis.DiagnosticExtensions.Verify(IEnumerable`1 actual, DiagnosticDescription[] expected) in /_/src/Compilers/Test/Core/Diagnostics/DiagnosticExtensions.cs:line 48
+   at Microsoft.CodeAnalysis.DiagnosticExtensions.Verify(ImmutableArray`1 actual, DiagnosticDescription[] expected) in /_/src/Compilers/Test/Core/Diagnostics/DiagnosticExtensions.cs:line 63
+   at Microsoft.CodeAnalysis.DiagnosticExtensions.VerifyDiagnostics[TCompilation](TCompilation c, DiagnosticDescription[] expected) in /_/src/Compilers/Test/Core/Diagnostics/DiagnosticExtensions.cs:line 111
+   at Microsoft.CodeAnalysis.CSharp.UnitTests.Semantics.UnsafeEvolutionTests.Member_Accessors_ConflictingUnsafeSafeModifiers() in /_/src/Compilers/CSharp/Test/CSharp15/UnsafeEvolutionTests.cs:line 8152
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:     1, Skipped:     0, Total:     2, Duration: 1 s - Microsoft.CodeAnalysis.CSharp.CSharp15.UnitTests.dll (net10.0)

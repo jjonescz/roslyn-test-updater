@@ -25,9 +25,10 @@ public sealed class SnapshotTests : IDisposable
     [MemberData(nameof(SnapshotDirs))]
     public void Snapshots(string snapshotDirName)
     {
+        using var loggerFactory = LoggerFactory.Create(b => b.AddConsole().SetMinimumLevel(LogLevel.Debug));
         var snapshotDirPath = Path.Join(GetTestsDirPath(), snapshotDirName);
         var fileSystem = new TestFileSystem(snapshotDirPath);
-        var program = new Program(fileSystem, LogLevel.Debug);
+        var program = new Program(loggerFactory, fileSystem);
         using (var testOutput = new StreamReader(Path.Join(snapshotDirPath, TestOutputFileName)))
         {
             program.Run(testOutput);

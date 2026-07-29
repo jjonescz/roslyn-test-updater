@@ -1,0 +1,16 @@
+Index: UnsafeEvolutionTests.cs
+===================================================================
+--- UnsafeEvolutionTests.cs
++++ UnsafeEvolutionTests.cs
+@@ -8162,8 +8162,11 @@
+             }
+             """,
+             options: TestOptions.UnsafeReleaseDll.WithUpdatedMemorySafetyRules())
+             .VerifyDiagnostics(
++            // (3,16): error CS9396: Cannot specify 'unsafe' or 'safe' modifiers on both property or indexer 'C.P1' and its accessor. Remove one of them.
++            //     unsafe int P1 { unsafe get => 0; set { } }
++            Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "P1").WithArguments("C.P1").WithLocation(3, 16),
+             // (4,16): error CS9396: Cannot specify 'unsafe' or 'safe' modifiers on both property or indexer 'C.P2' and its accessor. Remove one of them.
+             //     unsafe int P2 { get => 0; unsafe set { } }
+             Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "P2").WithArguments("C.P2").WithLocation(4, 16),
+             // (5,14): error CS9396: Cannot specify 'unsafe' or 'safe' modifiers on both property or indexer 'C.P3' and its accessor. Remove one of them.

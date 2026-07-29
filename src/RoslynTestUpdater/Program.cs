@@ -52,14 +52,20 @@ public partial class Program
         {
             Description = "Path to the input file. If not specified, standard input is used.",
         };
+        var verboseOption = new Option<bool>("--verbose")
+        {
+            Description = "Enable verbose logging.",
+        };
         var command = new RootCommand(nameof(RoslynTestUpdater))
         {
             writePlaylistOption,
             inputOption,
+            verboseOption,
         };
         command.SetAction(parseResult =>
         {
-            var program = new Program(new PhysicalFileSystem())
+            using var loggerFactory = LoggerFactory.Create(b => b.AddConsole().SetMinimumLevel(parseResult.GetValue(verboseOption) ? LogLevel.Debug : LogLevel.Information));
+            var program = new Program(loggerFactory, new PhysicalFileSystem(loggerFactory.CreateLogger<PhysicalFileSystem>()))
             {
                 WriteTestPlaylist = parseResult.GetValue(writePlaylistOption),
             };
@@ -80,9 +86,9 @@ public partial class Program
     private readonly ILogger logger;
     private readonly IFileSystem fileSystem;
 
-    public Program(IFileSystem fileSystem, LogLevel logLevel = LogLevel.Information)
+    public Program(ILoggerFactory loggerFactory, IFileSystem fileSystem)
     {
-        this.logger = LoggerFactory.Create(b => b.AddConsole().SetMinimumLevel(logLevel)).CreateLogger("RoslynTestUpdater");
+        this.logger = loggerFactory.CreateLogger("RoslynTestUpdater");
         this.fileSystem = fileSystem;
     }
 
@@ -121,6 +127,12 @@ public partial class Program
                 list.Add(replacement);
                 classNames.Add(result.Source.ClassName);
             }
+        }
+
+        if (counter == 0)
+        {
+            logger.LogError("No test output recognized.");
+            return;
         }
 
         // Construct new file contents.
@@ -402,7 +414,7 @@ public partial class Program
                         continue;
                     }
 
-                    if (!line.EndsWith(" [FAIL]") && !line.EndsWith(": Error Message: "))
+                    if (!line.EndsWith(" [FAIL]") && !line.EndsWith("Error Message:"))
                     {
                         continue;
                     }
@@ -481,6 +493,8 @@ public partial class Program
                     {
                         yield return GetResult();
                     }
+
+                    logger.LogWarning("Stack trace ended unexpectedly, could not parse line: {line}", line);
                     readNextLine = false;
                     state = State.Searching;
                     continue;
@@ -608,25 +622,37 @@ public interface IFileSystem
     void WriteAllText(string path, string? contents, Encoding encoding);
 }
 
-public class PhysicalFileSystem : IFileSystem
+public class PhysicalFileSystem(ILogger<PhysicalFileSystem> logger) : IFileSystem
 {
+    private string TranslatePath(string path)
+    {
+        if (path.StartsWith("/_/"))
+        {
+            var translated = Path.Join(Environment.CurrentDirectory, path[3..]);
+            logger.LogDebug("Translated {Original} to {Translated}", path, translated);
+            return translated;
+        }
+
+        return path;
+    }
+
     public StreamWriter CreateText(string path)
     {
-        return File.CreateText(path);
+        return File.CreateText(TranslatePath(path));
     }
 
     public string GetFullPath(string path)
     {
-        return Path.GetFullPath(path);
+        return Path.GetFullPath(TranslatePath(path));
     }
 
     public string ReadAllText(string path)
     {
-        return File.ReadAllText(path);
+        return File.ReadAllText(TranslatePath(path));
     }
 
     public void WriteAllText(string path, string? contents, Encoding encoding)
     {
-        File.WriteAllText(path, contents, encoding);
+        File.WriteAllText(TranslatePath(path), contents, encoding);
     }
 }
