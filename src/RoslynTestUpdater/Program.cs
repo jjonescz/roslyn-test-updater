@@ -18,15 +18,20 @@ public partial class Program
         FoundStackTrace,
     }
 
-    readonly record struct FileAndLocation(string Path, int Line, int Column, string Namespace, string ClassName, string MethodName);
+    readonly record struct FileAndLocation(string Path, int Line, int? Column, string Namespace, string ClassName, string MethodName);
 
     readonly record struct ParsingResult(IReadOnlyList<string> Expected, string Actual, FileAndLocation Source);
 
     /// <param name="End">Inclusive.</param>
     readonly record struct Replacement(int Start, int End, string Target);
 
-    [GeneratedRegex(@"\((\d+),(\d+)\): at ((\w+\.)*)(\w+)\.(\w+)")]
-    static partial Regex StackTraceEntryRegex { get; }
+    // C:\Users\janjones\Code\roslyn\src\Compilers\Test\Core\Diagnostics\DiagnosticExtensions.cs(98,0): at Microsoft.CodeAnalysis.DiagnosticExtensions.Verify(IEnumerable`1 actual, DiagnosticDescription[] expected, Boolean errorCodeOnly)
+    [GeneratedRegex(@"\((?'line'\d+),(?'col'\d+)\): at (?'ns'(\w+\.)*)(?'cls'\w+)\.(?'method'\w+)")]
+    static partial Regex StackTraceEntryRegex1 { get; }
+
+    // at Microsoft.CodeAnalysis.DiagnosticExtensions.Verify(IEnumerable`1 actual, DiagnosticDescription[] expected, Boolean errorCodeOnly) in /_/src/Compilers/Test/Core/Diagnostics/DiagnosticExtensions.cs:line 100
+    [GeneratedRegex(@"at (?'ns'(\w+\.)*)(?'cls'\w+)\.(?'method'\w+).* in (?'path'.*):line (?'line'\d+)")]
+    static partial Regex StackTraceEntryRegex2 { get; }
 
     [GeneratedRegex("^(?!$)", RegexOptions.Multiline)]
     static partial Regex StartRegex { get; }
@@ -397,7 +402,7 @@ public partial class Program
                         continue;
                     }
 
-                    if (!line.EndsWith(" [FAIL]"))
+                    if (!line.EndsWith(" [FAIL]") && !line.EndsWith(": Error Message: "))
                     {
                         continue;
                     }
@@ -446,19 +451,32 @@ public partial class Program
 
                 // Parse stack trace. When not possible, stack trace ended.
                 case State.FoundStackTrace:
-                    var match = StackTraceEntryRegex.Match(line);
+                    var match = StackTraceEntryRegex1.Match(line);
                     if (match.Success)
                     {
-                        // Parse the stack trace line.
                         lastStackTraceLine = new(
                             Path: RemoveIndent(line[..match.Index]),
-                            Line: int.Parse(match.Groups[1].ValueSpan),
-                            Column: int.Parse(match.Groups[2].ValueSpan),
-                            Namespace: match.Groups[3].Value,
-                            ClassName: match.Groups[5].Value,
-                            MethodName: match.Groups[6].Value);
+                            Line: int.Parse(match.Groups["line"].ValueSpan),
+                            Column: int.Parse(match.Groups["col"].ValueSpan),
+                            Namespace: match.Groups["ns"].Value,
+                            ClassName: match.Groups["cls"].Value,
+                            MethodName: match.Groups["method"].Value);
                         continue;
                     }
+
+                    match = StackTraceEntryRegex2.Match(line);
+                    if (match.Success)
+                    {
+                        lastStackTraceLine = new(
+                            Path: match.Groups["path"].Value,
+                            Line: int.Parse(match.Groups["line"].ValueSpan),
+                            Column: null,
+                            Namespace: match.Groups["ns"].Value,
+                            ClassName: match.Groups["cls"].Value,
+                            MethodName: match.Groups["method"].Value);
+                        continue;
+                    }
+
                     if (lastStackTraceLine != null)
                     {
                         yield return GetResult();

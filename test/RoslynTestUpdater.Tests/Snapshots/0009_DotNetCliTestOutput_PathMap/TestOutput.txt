@@ -1,0 +1,234 @@
+    /_/src/Compilers/Test/Core/Diagnostics/DiagnosticExtensions.cs(100): error TESTERROR: 
+      Microsoft.CodeAnalysis.CSharp.UnitTests.Semantics.UnsafeEvolutionTests.SafeModifier_Declarations_Interface(allowUnsafe: True) (120ms): Error Message: 
+      Expected:
+                      Diagnostic(ErrorCode.ERR_BadMemberFlag, "E").WithArguments("extern").WithLocation(20, 40),
+                      Diagnostic(ErrorCode.ERR_ExplicitEventFieldImpl, "E").WithLocation(20, 40),
+                      Diagnostic(ErrorCode.ERR_SamePropertyUnsafeAccessorMods, "A").WithArguments("I3.I1.A").WithLocation(21, 12),
+                      Diagnostic(ErrorCode.ERR_BadMemberFlag, "get").WithArguments("extern").WithLocation(21, 28),
+                      Diagnostic(ErrorCode.ERR_BadMemberFlag, "set").WithArguments("extern").WithLocation(21, 45),
+                      Diagnostic(ErrorCode.ERR_SamePropertyUnsafeAccessorMods, "A").WithArguments("I4.I1.A").WithLocation(25, 24),
+                      Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "get").WithArguments("I4.I1.A").WithLocation(25, 33),
+                      Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "set").WithArguments("I4.I1.A").WithLocation(25, 43)
+      Actual:
+                      // (20,40): error CS0106: The modifier 'extern' is not valid for this item
+                      //     safe extern event System.Action I1.E;
+                      Diagnostic(ErrorCode.ERR_BadMemberFlag, "E").WithArguments("extern").WithLocation(20, 40),
+                      // (20,40): error CS0071: An explicit interface implementation of an event must use event accessor syntax
+                      //     safe extern event System.Action I1.E;
+                      Diagnostic(ErrorCode.ERR_ExplicitEventFieldImpl, "E").WithLocation(20, 40),
+                      // (21,12): error CS9397: Cannot specify the same 'unsafe' or 'safe' modifier on all accessors of property or indexer 'I3.I1.A'. Instead, put that modifier on the property itself.
+                      //     int I1.A { safe extern get; safe extern set; }
+                      Diagnostic(ErrorCode.ERR_SamePropertyUnsafeAccessorMods, "A").WithArguments("I3.I1.A").WithLocation(21, 12),
+                      // (21,28): error CS0106: The modifier 'extern' is not valid for this item
+                      //     int I1.A { safe extern get; safe extern set; }
+                      Diagnostic(ErrorCode.ERR_BadMemberFlag, "get").WithArguments("extern").WithLocation(21, 28),
+                      // (21,45): error CS0106: The modifier 'extern' is not valid for this item
+                      //     int I1.A { safe extern get; safe extern set; }
+                      Diagnostic(ErrorCode.ERR_BadMemberFlag, "set").WithArguments("extern").WithLocation(21, 45),
+                      // (25,24): error CS9396: Cannot specify 'unsafe' or 'safe' modifiers on both property or indexer 'I4.I1.A' and its accessor. Remove one of them.
+                      //     safe extern int I1.A { safe get; safe set; }
+                      Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "A").WithArguments("I4.I1.A").WithLocation(25, 24)
+      Diff:
+      ++>                 Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "A").WithArguments("I4.I1.A").WithLocation(25, 24)
+      -->                 Diagnostic(ErrorCode.ERR_SamePropertyUnsafeAccessorMods, "A").WithArguments("I4.I1.A").WithLocation(25, 24)
+      -->                 Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "get").WithArguments("I4.I1.A").WithLocation(25, 33)
+      -->                 Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "set").WithArguments("I4.I1.A").WithLocation(25, 43)
+      Stack Trace:
+         at Microsoft.CodeAnalysis.DiagnosticExtensions.Verify(IEnumerable`1 actual, DiagnosticDescription[] expected, Boolean errorCodeOnly) in /_/src/Compilers/Test/Core/Diagnostics/DiagnosticExtensions.cs:line 100
+         at Microsoft.CodeAnalysis.DiagnosticExtensions.Verify(IEnumerable`1 actual, DiagnosticDescription[] expected) in /_/src/Compilers/Test/Core/Diagnostics/DiagnosticExtensions.cs:line 48
+         at Microsoft.CodeAnalysis.DiagnosticExtensions.Verify(ImmutableArray`1 actual, DiagnosticDescription[] expected) in /_/src/Compilers/Test/Core/Diagnostics/DiagnosticExtensions.cs:line 63
+         at Microsoft.CodeAnalysis.DiagnosticExtensions.VerifyDiagnostics[TCompilation](TCompilation c, DiagnosticDescription[] expected) in /_/src/Compilers/Test/Core/Diagnostics/DiagnosticExtensions.cs:line 111
+         at Microsoft.CodeAnalysis.CSharp.UnitTests.Semantics.UnsafeEvolutionTests.SafeModifier_Declarations_Interface(Boolean allowUnsafe) in /_/src/Compilers/CSharp/Test/CSharp15/UnsafeEvolutionTests.cs:line 14012
+         at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+         at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+    /_/src/Compilers/Test/Core/Diagnostics/DiagnosticExtensions.cs(100): error TESTERROR: 
+      Microsoft.CodeAnalysis.CSharp.UnitTests.Semantics.UnsafeEvolutionTests.SafeModifier_Declarations_Interface(allowUnsafe: False) (7ms): Error Message: 
+      Expected:
+                      Diagnostic(ErrorCode.ERR_BadMemberFlag, "E").WithArguments("extern").WithLocation(20, 40),
+                      Diagnostic(ErrorCode.ERR_ExplicitEventFieldImpl, "E").WithLocation(20, 40),
+                      Diagnostic(ErrorCode.ERR_SamePropertyUnsafeAccessorMods, "A").WithArguments("I3.I1.A").WithLocation(21, 12),
+                      Diagnostic(ErrorCode.ERR_BadMemberFlag, "get").WithArguments("extern").WithLocation(21, 28),
+                      Diagnostic(ErrorCode.ERR_BadMemberFlag, "set").WithArguments("extern").WithLocation(21, 45),
+                      Diagnostic(ErrorCode.ERR_SamePropertyUnsafeAccessorMods, "A").WithArguments("I4.I1.A").WithLocation(25, 24),
+                      Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "get").WithArguments("I4.I1.A").WithLocation(25, 33),
+                      Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "set").WithArguments("I4.I1.A").WithLocation(25, 43)
+      Actual:
+                      // (20,40): error CS0106: The modifier 'extern' is not valid for this item
+                      //     safe extern event System.Action I1.E;
+                      Diagnostic(ErrorCode.ERR_BadMemberFlag, "E").WithArguments("extern").WithLocation(20, 40),
+                      // (20,40): error CS0071: An explicit interface implementation of an event must use event accessor syntax
+                      //     safe extern event System.Action I1.E;
+                      Diagnostic(ErrorCode.ERR_ExplicitEventFieldImpl, "E").WithLocation(20, 40),
+                      // (21,12): error CS9397: Cannot specify the same 'unsafe' or 'safe' modifier on all accessors of property or indexer 'I3.I1.A'. Instead, put that modifier on the property itself.
+                      //     int I1.A { safe extern get; safe extern set; }
+                      Diagnostic(ErrorCode.ERR_SamePropertyUnsafeAccessorMods, "A").WithArguments("I3.I1.A").WithLocation(21, 12),
+                      // (21,28): error CS0106: The modifier 'extern' is not valid for this item
+                      //     int I1.A { safe extern get; safe extern set; }
+                      Diagnostic(ErrorCode.ERR_BadMemberFlag, "get").WithArguments("extern").WithLocation(21, 28),
+                      // (21,45): error CS0106: The modifier 'extern' is not valid for this item
+                      //     int I1.A { safe extern get; safe extern set; }
+                      Diagnostic(ErrorCode.ERR_BadMemberFlag, "set").WithArguments("extern").WithLocation(21, 45),
+                      // (25,24): error CS9396: Cannot specify 'unsafe' or 'safe' modifiers on both property or indexer 'I4.I1.A' and its accessor. Remove one of them.
+                      //     safe extern int I1.A { safe get; safe set; }
+                      Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "A").WithArguments("I4.I1.A").WithLocation(25, 24)
+      Diff:
+      ++>                 Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "A").WithArguments("I4.I1.A").WithLocation(25, 24)
+      -->                 Diagnostic(ErrorCode.ERR_SamePropertyUnsafeAccessorMods, "A").WithArguments("I4.I1.A").WithLocation(25, 24)
+      -->                 Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "get").WithArguments("I4.I1.A").WithLocation(25, 33)
+      -->                 Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "set").WithArguments("I4.I1.A").WithLocation(25, 43)
+      Stack Trace:
+         at Microsoft.CodeAnalysis.DiagnosticExtensions.Verify(IEnumerable`1 actual, DiagnosticDescription[] expected, Boolean errorCodeOnly) in /_/src/Compilers/Test/Core/Diagnostics/DiagnosticExtensions.cs:line 100
+         at Microsoft.CodeAnalysis.DiagnosticExtensions.Verify(IEnumerable`1 actual, DiagnosticDescription[] expected) in /_/src/Compilers/Test/Core/Diagnostics/DiagnosticExtensions.cs:line 48
+         at Microsoft.CodeAnalysis.DiagnosticExtensions.Verify(ImmutableArray`1 actual, DiagnosticDescription[] expected) in /_/src/Compilers/Test/Core/Diagnostics/DiagnosticExtensions.cs:line 63
+         at Microsoft.CodeAnalysis.DiagnosticExtensions.VerifyDiagnostics[TCompilation](TCompilation c, DiagnosticDescription[] expected) in /_/src/Compilers/Test/Core/Diagnostics/DiagnosticExtensions.cs:line 111
+         at Microsoft.CodeAnalysis.CSharp.UnitTests.Semantics.UnsafeEvolutionTests.SafeModifier_Declarations_Interface(Boolean allowUnsafe) in /_/src/Compilers/CSharp/Test/CSharp15/UnsafeEvolutionTests.cs:line 14012
+         at InvokeStub_UnsafeEvolutionTests.SafeModifier_Declarations_Interface(Object, Span`1)
+         at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+    /_/src/Compilers/Test/Core/Diagnostics/DiagnosticExtensions.cs(100): error TESTERROR: 
+      Microsoft.CodeAnalysis.CSharp.UnitTests.Semantics.UnsafeEvolutionTests.Member_Property_Accessors_UnsafeKeyword_Partial (23ms): Error Message: 
+      Expected:
+                      Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "get").WithArguments("C.P").WithLocation(3, 42),
+                      Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "get").WithArguments("C.P").WithLocation(4, 42)
+      Actual:
+                      // (3,31): error CS9396: Cannot specify 'unsafe' or 'safe' modifiers on both property or indexer 'C.P' and its accessor. Remove one of them.
+                      //     public unsafe partial int P { unsafe get; set; }
+                      Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "P").WithArguments("C.P").WithLocation(3, 31)
+      Diff:
+      ++>                 Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "P").WithArguments("C.P").WithLocation(3, 31)
+      -->                 Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "get").WithArguments("C.P").WithLocation(3, 42)
+      -->                 Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "get").WithArguments("C.P").WithLocation(4, 42)
+      Stack Trace:
+         at Microsoft.CodeAnalysis.DiagnosticExtensions.Verify(IEnumerable`1 actual, DiagnosticDescription[] expected, Boolean errorCodeOnly) in /_/src/Compilers/Test/Core/Diagnostics/DiagnosticExtensions.cs:line 100
+         at Microsoft.CodeAnalysis.DiagnosticExtensions.Verify(IEnumerable`1 actual, DiagnosticDescription[] expected) in /_/src/Compilers/Test/Core/Diagnostics/DiagnosticExtensions.cs:line 48
+         at Microsoft.CodeAnalysis.DiagnosticExtensions.Verify(ImmutableArray`1 actual, DiagnosticDescription[] expected) in /_/src/Compilers/Test/Core/Diagnostics/DiagnosticExtensions.cs:line 63
+         at Microsoft.CodeAnalysis.DiagnosticExtensions.VerifyDiagnostics[TCompilation](TCompilation c, DiagnosticDescription[] expected) in /_/src/Compilers/Test/Core/Diagnostics/DiagnosticExtensions.cs:line 111
+         at Microsoft.CodeAnalysis.CSharp.UnitTests.Semantics.UnsafeEvolutionTests.Member_Property_Accessors_UnsafeKeyword_Partial() in /_/src/Compilers/CSharp/Test/CSharp15/UnsafeEvolutionTests.cs:line 8087
+         at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+         at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+    /_/src/Compilers/Test/Core/Diagnostics/DiagnosticExtensions.cs(100): error TESTERROR: 
+      Microsoft.CodeAnalysis.CSharp.UnitTests.Semantics.UnsafeEvolutionTests.Extern_Property_SafeModifier_Accessor (14ms): Error Message: 
+      Expected:
+                      Diagnostic(ErrorCode.ERR_InaccessibleSetter, "c.P1").WithArguments("C.P1").WithLocation(4, 1),
+                      Diagnostic(ErrorCode.ERR_UnsafeMemberOperation, "c.P1").WithArguments("C.P1.get").WithLocation(5, 5),
+                      Diagnostic(ErrorCode.ERR_UnsafeMemberOperation, "c.P3").WithArguments("C.P3.set").WithLocation(7, 1),
+                      Diagnostic(ErrorCode.ERR_UnsafeMemberOperation, "c.P4").WithArguments("C.P4.set").WithLocation(9, 1),
+                      Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "set").WithArguments("C.P1").WithLocation(14, 53),
+                      Diagnostic(ErrorCode.ERR_SamePropertyUnsafeAccessorMods, "P2").WithArguments("C.P2").WithLocation(15, 30),
+                      Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "get").WithArguments("C.P2").WithLocation(15, 40),
+                      Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "get").WithArguments("C.P3").WithLocation(16, 40),
+                      Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "set").WithArguments("C.P4").WithLocation(17, 45)
+      Actual:
+                      // (4,1): error CS0272: The property or indexer 'C.P1' cannot be used in this context because the set accessor is inaccessible
+                      // c.P1 = 0;
+                      Diagnostic(ErrorCode.ERR_InaccessibleSetter, "c.P1").WithArguments("C.P1").WithLocation(4, 1),
+                      // (5,5): error CS9362: 'C.P1.get' must be used in an unsafe context because it is marked as 'unsafe'
+                      // _ = c.P1;
+                      Diagnostic(ErrorCode.ERR_UnsafeMemberOperation, "c.P1").WithArguments("C.P1.get").WithLocation(5, 5),
+                      // (7,1): error CS9362: 'C.P3.set' must be used in an unsafe context because it is marked as 'unsafe'
+                      // c.P3 = 0;
+                      Diagnostic(ErrorCode.ERR_UnsafeMemberOperation, "c.P3").WithArguments("C.P3.set").WithLocation(7, 1),
+                      // (9,1): error CS9362: 'C.P4.set' must be used in an unsafe context because it is marked as 'unsafe'
+                      // c.P4 = 0;
+                      Diagnostic(ErrorCode.ERR_UnsafeMemberOperation, "c.P4").WithArguments("C.P4.set").WithLocation(9, 1),
+                      // (14,30): error CS9396: Cannot specify 'unsafe' or 'safe' modifiers on both property or indexer 'C.P1' and its accessor. Remove one of them.
+                      //     public unsafe extern int P1 { get; private safe set; }
+                      Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "P1").WithArguments("C.P1").WithLocation(14, 30),
+                      // (15,30): error CS9396: Cannot specify 'unsafe' or 'safe' modifiers on both property or indexer 'C.P2' and its accessor. Remove one of them.
+                      //     public unsafe extern int P2 { safe get; }
+                      Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "P2").WithArguments("C.P2").WithLocation(15, 30),
+                      // (16,30): error CS9396: Cannot specify 'unsafe' or 'safe' modifiers on both property or indexer 'C.P3' and its accessor. Remove one of them.
+                      //     public unsafe extern int P3 { safe get; set; }
+                      Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "P3").WithArguments("C.P3").WithLocation(16, 30),
+                      // (17,28): error CS9396: Cannot specify 'unsafe' or 'safe' modifiers on both property or indexer 'C.P4' and its accessor. Remove one of them.
+                      //     public safe extern int P4 { get; unsafe set; }
+                      Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "P4").WithArguments("C.P4").WithLocation(17, 28)
+      Diff:
+      ++>                 Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "P1").WithArguments("C.P1").WithLocation(14, 30)
+      ++>                 Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "P2").WithArguments("C.P2").WithLocation(15, 30)
+      ++>                 Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "P3").WithArguments("C.P3").WithLocation(16, 30)
+      ++>                 Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "P4").WithArguments("C.P4").WithLocation(17, 28)
+      -->                 Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "set").WithArguments("C.P1").WithLocation(14, 53)
+      -->                 Diagnostic(ErrorCode.ERR_SamePropertyUnsafeAccessorMods, "P2").WithArguments("C.P2").WithLocation(15, 30)
+      -->                 Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "get").WithArguments("C.P2").WithLocation(15, 40)
+      -->                 Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "get").WithArguments("C.P3").WithLocation(16, 40)
+      -->                 Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "set").WithArguments("C.P4").WithLocation(17, 45)
+      Stack Trace:
+         at Microsoft.CodeAnalysis.DiagnosticExtensions.Verify(IEnumerable`1 actual, DiagnosticDescription[] expected, Boolean errorCodeOnly) in /_/src/Compilers/Test/Core/Diagnostics/DiagnosticExtensions.cs:line 100
+         at Microsoft.CodeAnalysis.DiagnosticExtensions.Verify(IEnumerable`1 actual, DiagnosticDescription[] expected) in /_/src/Compilers/Test/Core/Diagnostics/DiagnosticExtensions.cs:line 48
+         at Microsoft.CodeAnalysis.DiagnosticExtensions.Verify(ImmutableArray`1 actual, DiagnosticDescription[] expected) in /_/src/Compilers/Test/Core/Diagnostics/DiagnosticExtensions.cs:line 63
+         at Microsoft.CodeAnalysis.DiagnosticExtensions.VerifyDiagnostics[TCompilation](TCompilation c, DiagnosticDescription[] expected) in /_/src/Compilers/Test/Core/Diagnostics/DiagnosticExtensions.cs:line 111
+         at Microsoft.CodeAnalysis.CSharp.UnitTests.Semantics.UnsafeEvolutionTests.Extern_Property_SafeModifier_Accessor() in /_/src/Compilers/CSharp/Test/CSharp15/UnsafeEvolutionTests.cs:line 12959
+         at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+         at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+         at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+    /_/src/Compilers/Test/Core/Diagnostics/DiagnosticExtensions.cs(100): error TESTERROR: 
+      Microsoft.CodeAnalysis.CSharp.UnitTests.Semantics.UnsafeEvolutionTests.Member_Indexer_Accessors_UnsafeKeyword_Partial (13ms): Error Message: 
+      Expected:
+                      Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "get").WithArguments("C.this[int]").WithLocation(3, 52),
+                      Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "get").WithArguments("C.this[int]").WithLocation(4, 52)
+      Actual:
+                      // (3,31): error CS9396: Cannot specify 'unsafe' or 'safe' modifiers on both property or indexer 'C.this[int]' and its accessor. Remove one of them.
+                      //     public unsafe partial int this[int i] { unsafe get; set; }
+                      Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "this").WithArguments("C.this[int]").WithLocation(3, 31)
+      Diff:
+      ++>                 Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "this").WithArguments("C.this[int]").WithLocation(3, 31)
+      -->                 Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "get").WithArguments("C.this[int]").WithLocation(3, 52)
+      -->                 Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "get").WithArguments("C.this[int]").WithLocation(4, 52)
+      Stack Trace:
+         at Microsoft.CodeAnalysis.DiagnosticExtensions.Verify(IEnumerable`1 actual, DiagnosticDescription[] expected, Boolean errorCodeOnly) in /_/src/Compilers/Test/Core/Diagnostics/DiagnosticExtensions.cs:line 100
+         at Microsoft.CodeAnalysis.DiagnosticExtensions.Verify(IEnumerable`1 actual, DiagnosticDescription[] expected) in /_/src/Compilers/Test/Core/Diagnostics/DiagnosticExtensions.cs:line 48
+         at Microsoft.CodeAnalysis.DiagnosticExtensions.Verify(ImmutableArray`1 actual, DiagnosticDescription[] expected) in /_/src/Compilers/Test/Core/Diagnostics/DiagnosticExtensions.cs:line 63
+         at Microsoft.CodeAnalysis.DiagnosticExtensions.VerifyDiagnostics[TCompilation](TCompilation c, DiagnosticDescription[] expected) in /_/src/Compilers/Test/Core/Diagnostics/DiagnosticExtensions.cs:line 111
+         at Microsoft.CodeAnalysis.CSharp.UnitTests.Semantics.UnsafeEvolutionTests.Member_Indexer_Accessors_UnsafeKeyword_Partial() in /_/src/Compilers/CSharp/Test/CSharp15/UnsafeEvolutionTests.cs:line 8800
+         at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+         at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+         at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+    /_/src/Compilers/Test/Core/Diagnostics/DiagnosticExtensions.cs(100): error TESTERROR: 
+      Microsoft.CodeAnalysis.CSharp.UnitTests.Semantics.UnsafeEvolutionTests.SafeModifier_Extern_SafeUnsafe (5ms): Error Message: 
+      Expected:
+                      Diagnostic(ErrorCode.ERR_SafeModifierCannotBeUsedWithUnsafe, "safe").WithLocation(4, 5),
+                      Diagnostic(ErrorCode.ERR_SafeModifierCannotBeUsedWithUnsafe, "safe").WithLocation(5, 5),
+                      Diagnostic(ErrorCode.ERR_SafeModifierCannotBeUsedWithUnsafe, "safe").WithLocation(6, 33),
+                      Diagnostic(ErrorCode.ERR_SafeModifierCannotBeUsedWithUnsafe, "safe").WithLocation(7, 5),
+                      Diagnostic(ErrorCode.ERR_SafeModifierCannotBeUsedWithUnsafe, "safe").WithLocation(8, 5),
+                      Diagnostic(ErrorCode.ERR_SafeModifierCannotBeUsedWithUnsafe, "safe").WithLocation(9, 5),
+                      Diagnostic(ErrorCode.ERR_SafeModifierCannotBeUsedWithUnsafe, "safe").WithLocation(12, 9)
+      Actual:
+                      // (4,5): error CS9388: The 'safe' and 'unsafe' modifiers cannot be used together.
+                      //     safe unsafe public extern void M1();
+                      Diagnostic(ErrorCode.ERR_SafeModifierCannotBeUsedWithUnsafe, "safe").WithLocation(4, 5),
+                      // (5,5): error CS9388: The 'safe' and 'unsafe' modifiers cannot be used together.
+                      //     safe unsafe public extern int P1 { get; set; }
+                      Diagnostic(ErrorCode.ERR_SafeModifierCannotBeUsedWithUnsafe, "safe").WithLocation(5, 5),
+                      // (6,28): error CS9396: Cannot specify 'unsafe' or 'safe' modifiers on both property or indexer 'C.P2' and its accessor. Remove one of them.
+                      //     public safe extern int P2 { safe unsafe get; set; }
+                      Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "P2").WithArguments("C.P2").WithLocation(6, 28),
+                      // (6,33): error CS9388: The 'safe' and 'unsafe' modifiers cannot be used together.
+                      //     public safe extern int P2 { safe unsafe get; set; }
+                      Diagnostic(ErrorCode.ERR_SafeModifierCannotBeUsedWithUnsafe, "safe").WithLocation(6, 33),
+                      // (7,5): error CS9388: The 'safe' and 'unsafe' modifiers cannot be used together.
+                      //     safe unsafe public static extern event System.Action E1;
+                      Diagnostic(ErrorCode.ERR_SafeModifierCannotBeUsedWithUnsafe, "safe").WithLocation(7, 5),
+                      // (8,5): error CS9388: The 'safe' and 'unsafe' modifiers cannot be used together.
+                      //     safe unsafe public extern C(int x);
+                      Diagnostic(ErrorCode.ERR_SafeModifierCannotBeUsedWithUnsafe, "safe").WithLocation(8, 5),
+                      // (9,5): error CS9388: The 'safe' and 'unsafe' modifiers cannot be used together.
+                      //     safe unsafe extern ~C();
+                      Diagnostic(ErrorCode.ERR_SafeModifierCannotBeUsedWithUnsafe, "safe").WithLocation(9, 5),
+                      // (12,9): error CS9388: The 'safe' and 'unsafe' modifiers cannot be used together.
+                      //         safe unsafe static extern void Local1();
+                      Diagnostic(ErrorCode.ERR_SafeModifierCannotBeUsedWithUnsafe, "safe").WithLocation(12, 9)
+      Diff:
+      ++>                 Diagnostic(ErrorCode.ERR_InvalidPropertyUnsafeMods, "P2").WithArguments("C.P2").WithLocation(6, 28)
+      Stack Trace:
+         at Microsoft.CodeAnalysis.DiagnosticExtensions.Verify(IEnumerable`1 actual, DiagnosticDescription[] expected, Boolean errorCodeOnly) in /_/src/Compilers/Test/Core/Diagnostics/DiagnosticExtensions.cs:line 100
+         at Microsoft.CodeAnalysis.DiagnosticExtensions.Verify(IEnumerable`1 actual, DiagnosticDescription[] expected) in /_/src/Compilers/Test/Core/Diagnostics/DiagnosticExtensions.cs:line 48
+         at Microsoft.CodeAnalysis.DiagnosticExtensions.Verify(ImmutableArray`1 actual, DiagnosticDescription[] expected) in /_/src/Compilers/Test/Core/Diagnostics/DiagnosticExtensions.cs:line 63
+         at Microsoft.CodeAnalysis.DiagnosticExtensions.VerifyDiagnostics[TCompilation](TCompilation c, DiagnosticDescription[] expected) in /_/src/Compilers/Test/Core/Diagnostics/DiagnosticExtensions.cs:line 111
+         at Microsoft.CodeAnalysis.CSharp.UnitTests.Semantics.UnsafeEvolutionTests.SafeModifier_Extern_SafeUnsafe() in /_/src/Compilers/CSharp/Test/CSharp15/UnsafeEvolutionTests.cs:line 14387
+         at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+         at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+         at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Test summary: total: 572, failed: 6, succeeded: 566, skipped: 0, duration: 26.8s
+Build failed with 6 error(s) and 96 warning(s) in 27.5s
