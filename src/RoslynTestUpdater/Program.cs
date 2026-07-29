@@ -414,7 +414,7 @@ public partial class Program
                         continue;
                     }
 
-                    if (!line.EndsWith(" [FAIL]") && !line.EndsWith("Error Message:"))
+                    if (!line.EndsWith(" [FAIL]") && !line.AsSpan().TrimEnd().EndsWith("Error Message:"))
                     {
                         continue;
                     }
